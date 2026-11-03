@@ -451,6 +451,10 @@ footer { max-width: 1680px; margin: 0 auto; padding: 16px 24px 24px; }
 @media (max-width: 900px) { .minute-grid { grid-template-columns: 1fr; } }
 
 
+.tradingview-stage { position: relative; isolation: isolate; }
+.candle-clock { position: absolute; z-index: 2; top: 12px; right: 84px; max-width: calc(100% - 108px); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 7px 10px; border: 1px solid var(--line); border-radius: var(--r); background: rgba(18, 23, 26, .94); pointer-events: none; }
+.candle-clock span { color: var(--muted); font-size: 11px; }
+.candle-clock strong { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--up); }
 .tradingview-market { grid-template-columns: minmax(0, 1fr); }
 .tradingview-chart { height: 620px; min-width: 0; }
 .tradingview-chart .tradingview-widget-container { height: 100%; width: 100%; }

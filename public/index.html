@@ -45,8 +45,12 @@
       <button type="button" id="tradingViewRetry" class="btn small">Recarregar gráfico</button>
     </div>
     <p class="chart-context" id="tradingViewStatus" role="status">Carregando TradingView…</p>
-    <div id="tradingViewChart" class="tradingview-chart" aria-label="Gráfico TradingView"></div>
-    <p class="chart-context"><a id="tradingViewExternalLink" href="https://www.tradingview.com/symbols/SOLUSDT/?exchange=BINANCE" target="_blank" rel="noopener noreferrer">Abrir no TradingView</a> · Gráficos por TradingView. Disponibilidade, atraso e sessão são informados no gráfico. Use a busca do gráfico para acompanhar outros ativos.</p>
+    <div class="tradingview-stage">
+      <div id="tradingViewChart" class="tradingview-chart" aria-label="Gráfico TradingView"></div>
+      <div class="candle-clock" aria-describedby="candleClockNote"><span id="candleClockLabel">Fecha em</span><strong id="candleClockValue" role="timer" aria-label="Tempo previsto até fechar a vela">—</strong></div>
+    </div>
+    <p class="chart-context" id="candleClockNote"></p>
+    <p class="chart-context"><a id="tradingViewExternalLink" href="https://www.tradingview.com/symbols/SOLUSDT/?exchange=BINANCE" target="_blank" rel="noopener noreferrer">Abrir no TradingView</a> · Gráficos por TradingView. Disponibilidade, atraso e sessão são informados no gráfico. Escolha o ativo e o intervalo nos seletores acima.</p>
   </div>
 </section>
 <section class="pane wide" id="feed-operations">
@@ -170,6 +174,7 @@
 </main>
 <footer>MNEME decide por regras fixas que você controla em Configurações. Ranking e resultados passados não garantem resultado futuro.</footer>
 <script src="/assets/common.js"></script>
+<script src="/assets/candle-clock.js"></script>
 <script src="/assets/tradingview-chart.js"></script>
 <script src="/assets/feed-activity-data.js"></script>
 <script src="/assets/feed-activity.js"></script>

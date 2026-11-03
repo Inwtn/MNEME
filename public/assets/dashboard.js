@@ -422,6 +422,7 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) clea
 
 function renderFeedOperations(s) {
   const events = s.feedEvents ?? [];
+  window.feedActivity?.observe(events);
   $("feedCount").textContent = events.length + " operações recentes";
   $("feedOperations").innerHTML = events.slice().reverse().map(e => {
     const side = e.eventType === "buy" ? ["Compra", "up"] : ["Venda", "down"];

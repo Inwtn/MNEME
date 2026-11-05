@@ -22,7 +22,7 @@ from ..dados.armazem import ArmazemVelas, agora_utc
 from ..dados.calendario import FonteCalendario
 from ..dados.eventos import ArmazemEventos
 from ..dados.resultados_macro import FonteResultados, surpresas
-from .estudo_eventos import com_macro, reacoes, resumir, volatilidade_em_torno
+from .estudo_eventos import com_macro, ganho_da_agenda, reacoes, resumir, volatilidade_em_torno
 from ..previsor import PADRAO_REFERENCIA, REFERENCIA
 from ..setups import SETUPS, NOME_FIMATHE, setups_configurados
 from .avaliacao import separar_selado
@@ -299,6 +299,22 @@ def estudar_macro(armazem: ArmazemVelas, registro: Registro, raiz: str, pares: l
     _salvar(pasta, "macro", saida)
 
 
+def estudar_agenda(armazem: ArmazemVelas, registro: Registro, raiz: str, pares: list[str], pasta: Path, horizontes: tuple[int, ...] = (15, 60)) -> None:
+    """Saber o que vem pela frente melhora a previsão da volatilidade? Só na área de desenvolvimento, com e sem a agenda."""
+    saida = []
+    for par in pares:
+        atributos, v, dados = _base_de_previsao(armazem, par, raiz)
+        for h in horizontes:
+            x, y = amostrar(atributos, alvos(v, h), h)
+            dev, _ = separar_selado(x.index, SELADO_DESDE)
+            r = ganho_da_agenda(x[dev], y.loc[dev, "vol_futura"], h)
+            linha = {"par": par, "horizonte": h, **r}
+            saida.append(linha)
+            registro.anotar("agenda_volatilidade", "LightGBM", {"par": par, "horizonte": h}, dados, linha)
+            print(json.dumps(linha, ensure_ascii=False, default=float), flush=True)
+    _salvar(pasta, "agenda", saida)
+
+
 def treinar_finais(armazem: ArmazemVelas, registro: Registro, raiz: str, pares: list[str], horizontes: list[int], pasta_modelos: Path) -> None:
     for par in pares:
         atributos, v, dados = _base_de_previsao(armazem, par, raiz)
@@ -340,6 +356,7 @@ def main() -> None:
     me.add_argument("--payout", type=float, default=0.85)
     sub.add_parser("macro-importar").add_argument("--meses", type=int, default=24)
     sub.add_parser("macro")
+    sub.add_parser("agenda")
     se = sub.add_parser("selado")
     se.add_argument("par")
     se.add_argument("setup", choices=list(SETUPS))
@@ -380,6 +397,8 @@ def main() -> None:
         importar_macro(args.raiz, args.meses)
     elif args.comando == "macro":
         estudar_macro(armazem, registro, args.raiz, pares, pasta)
+    elif args.comando == "agenda":
+        estudar_agenda(armazem, registro, args.raiz, pares, pasta)
     elif args.comando == "selado":
         abrir_selado(armazem, registro, args.raiz, args.par, args.setup, args.minutos, args.payout, pasta)
     elif args.comando == "treinar":

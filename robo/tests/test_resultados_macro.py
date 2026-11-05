@@ -11,7 +11,7 @@ import pytest
 
 from mneme.dados.eventos import ArmazemEventos
 from mneme.dados.resultados_macro import FonteResultados, ResultadosAoVivo, classe_do_evento, divulgados_ate, divulgados_e_agenda, ler_dia, numero, surpresas
-from mneme.laboratorio.estudo_eventos import atributos_macro, com_macro, reacoes, resumir, volatilidade_em_torno
+from mneme.laboratorio.estudo_eventos import atributos_macro, com_macro, ganho_da_agenda, reacoes, resumir, volatilidade_em_torno
 
 AGORA = datetime(2026, 11, 5, 15, tzinfo=timezone.utc)
 INICIO = pd.Timestamp("2026-01-01", tz="UTC")
@@ -124,6 +124,78 @@ def test_com_macro_vazio_nao_inventa_zero():
     x = pd.DataFrame({"a": [1.0, 2.0]}, index=pd.date_range(INICIO, periods=2, freq="1min", tz="UTC"))
     saida = com_macro(x, pd.DataFrame())
     assert saida["e_ultima_surpresa_z"].isna().all() and saida["e_min_ate_macro"].isna().all()
+
+
+def test_agenda_futura_chega_aos_atributos_mesmo_sem_resultado():
+    e = _eventos([0.1, 0.2, 0.3])
+    corte = e["ocorrido_em"].iloc[0] + timedelta(days=1)
+    x = pd.DataFrame({"a": [1.0]}, index=pd.DatetimeIndex([corte]))
+    saida = com_macro(x, divulgados_e_agenda(e, corte + timedelta(minutes=1)))
+    assert saida["e_min_ate_macro"].iloc[0] == pytest.approx(7 * 1440)  # 29 dias à frente, limitado a sete
+    perto = e["ocorrido_em"].iloc[1] - timedelta(minutes=31)
+    saida = com_macro(pd.DataFrame({"a": [1.0]}, index=pd.DatetimeIndex([perto])), divulgados_e_agenda(e, perto + timedelta(minutes=1)))
+    assert saida["e_min_ate_macro"].iloc[0] == 30 and saida["e_macro_prox_60"].iloc[0] == 1 and saida["e_macro_prox_classe"].iloc[0] == 0
+
+
+def test_treino_e_ao_vivo_veem_a_mesma_agenda():
+    e = _eventos([0.1, 0.2, -0.1, 0.2, -0.2, 0.1, 0.3, -0.3])
+    instante = e["ocorrido_em"].iloc[6] + timedelta(days=2)
+    x = pd.DataFrame({"a": [1.0]}, index=pd.DatetimeIndex([instante - timedelta(minutes=1)]))
+    treino, ao_vivo = com_macro(x, e), com_macro(x, divulgados_e_agenda(e, instante))
+    pd.testing.assert_frame_equal(treino, ao_vivo)
+
+
+def test_depois_da_agenda_conhecida_o_tempo_ate_o_evento_e_desconhecido():
+    x = atributos_macro(pd.DataFrame([_evento(100)]), pd.date_range(INICIO, periods=150, freq="1min", tz="UTC"))
+    assert x["e_min_ate_macro"].iloc[50] == 49 and np.isnan(x["e_min_ate_macro"].iloc[120])
+
+
+def test_surpresa_usa_o_primeiro_numero_publicado():
+    e = _eventos([0.1] * 8)
+    revisao = e.iloc[[7]].assign(resultado=9.0, recebido_em=e["ocorrido_em"].iloc[7] + timedelta(days=30))
+    primeiro = e.iloc[[7]].assign(recebido_em=e["ocorrido_em"].iloc[7] + timedelta(minutes=1))
+    juntos = pd.concat([e.iloc[:7].assign(recebido_em=e["ocorrido_em"].iloc[:7]), revisao, primeiro]).assign(recebido_em=lambda t: pd.to_datetime(t["recebido_em"], utc=True))
+    assert surpresas(juntos)["surpresa"].iloc[-1] == pytest.approx(0.1)
+
+
+def test_ao_vivo_le_a_agenda_a_frente_de_hora_em_hora():
+    datas = []
+
+    def responder(pedido):
+        datas.append(pedido.url.params["date"])
+        return httpx.Response(200, json=RESPOSTA)
+
+    ao_vivo = ResultadosAoVivo(FonteResultados(httpx.Client(transport=httpx.MockTransport(responder)), pausa=0))
+    ao_vivo.coletar(AGORA)
+    assert len(datas) == 9 and datas[-1] == "2026-11-12"
+    datas.clear()
+    ao_vivo.coletar(AGORA + timedelta(minutes=5))
+    assert datas == ["2026-11-04", "2026-11-05"]
+    datas.clear()
+    ao_vivo.coletar(AGORA + timedelta(hours=1))
+    assert len(datas) == 9
+
+
+def _caso_agenda(com_efeito):
+    g = np.random.default_rng(0)
+    n = 4000
+    indice = pd.date_range(INICIO, periods=n, freq="15min", tz="UTC")
+    ate = np.arange(n) % 8 * 15.0  # um evento a cada 2 horas: janela grande o bastante para o mínimo de amostras por folha
+    x = pd.DataFrame({"v_ruido": g.normal(size=n), "e_min_ate_macro": ate, "e_min_desde_macro": 1440 - ate, "e_macro_prox_60": (ate <= 60).astype(float), "e_macro_prox_24h": 1.0, "e_macro_prox_classe": 0.0, "e_ultima_surpresa_z": np.nan}, index=indice)
+    y = pd.Series(g.normal(0, 0.3, n) + (2.0 * (ate <= 15) if com_efeito else 0.0), index=indice)
+    return x, y
+
+
+def test_ganho_da_agenda_acha_o_efeito_plantado():
+    x, y = _caso_agenda(True)
+    r = ganho_da_agenda(x, y, 15)
+    assert r["evento_a_frente"]["ganho"] > 0.5 and r["evento_a_frente"]["ganho_ic95"][0] > 0
+
+
+def test_ganho_da_agenda_nao_inventa_efeito_no_ruido():
+    x, y = _caso_agenda(False)
+    r = ganho_da_agenda(x, y, 15)
+    assert r["tudo"]["ganho_ic95"][0] <= 0.02 and r["tudo"]["ganho"] < 0.05
 
 
 def _velas(n=3000, passos=None):

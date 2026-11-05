@@ -84,7 +84,8 @@ class FonteResultados:
 
 def surpresas(eventos: pd.DataFrame, minimo_historico: int = 6) -> pd.DataFrame:
     """Surpresa = resultado - consenso, padronizada pelas surpresas anteriores do mesmo indicador. Sem histórico suficiente, fica nula."""
-    e = eventos.dropna(subset=["resultado", "consenso", "classe"]).drop_duplicates("id", keep="last").sort_values("ocorrido_em").copy()
+    # Vale o primeiro número publicado: foi a ele que o mercado reagiu. Revisões posteriores não mudam a surpresa daquele momento.
+    e = eventos.dropna(subset=["resultado", "consenso", "classe"]).sort_values("recebido_em", na_position="first").drop_duplicates("id", keep="first").sort_values("ocorrido_em").copy()
     if e.empty:
         return e.assign(surpresa=[], surpresa_z=[])
     e["surpresa"] = e["resultado"] - e["consenso"]
@@ -108,15 +109,22 @@ def divulgados_e_agenda(eventos: pd.DataFrame, instante: datetime) -> pd.DataFra
 
 
 class ResultadosAoVivo:
-    """Consulta hoje e ontem. Grava só o que mudou: assim o momento em que o resultado chegou e cada revisão ficam registrados."""
+    """Ontem e hoje a cada ciclo; a agenda dos próximos dias, de hora em hora. Grava só o que mudou: chegada e revisões ficam registradas."""
 
-    def __init__(self, fonte: FonteResultados | None = None):
+    def __init__(self, fonte: FonteResultados | None = None, dias_de_agenda: int = 7):
         self.fonte = fonte or FonteResultados(pausa=0)
+        self.dias_de_agenda = dias_de_agenda
         self.vistos: set[tuple] = set()
+        self.agenda_em: datetime | None = None
 
     def coletar(self, agora: datetime) -> list[dict]:
         novos = []
-        for dia in (agora.date() - timedelta(days=1), agora.date()):
+        hoje = agora.date()
+        dias = [hoje - timedelta(days=1), hoje]
+        if self.agenda_em is None or agora - self.agenda_em >= timedelta(hours=1):
+            self.agenda_em = agora
+            dias += [hoje + timedelta(days=i) for i in range(1, self.dias_de_agenda + 1)]
+        for dia in dias:
             for linha in self.fonte.dia(dia, agora):
                 chave = (linha["id"], linha["resultado"], linha["consenso"], linha["anterior"])
                 if chave not in self.vistos:

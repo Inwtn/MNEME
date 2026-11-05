@@ -62,6 +62,30 @@ Validação walk-forward com embargo e uma amostra por horizonte, sem alvos sobr
 
 Nenhum modelo passou do empate. Nos 20% mais confiantes, a regressão logística em ETH, 5 min, chegou a 54,59% em 35.191 previsões (p = 0,023 sem correção). É a próxima hipótese a testar, não um resultado.
 
+## Previsões confiantes (`mneme.laboratorio robustez`)
+
+Atualiza o parágrafo acima. LightGBM, 20% mais confiantes com corte só do passado, até 31/07/2026. Empate de 54,05%. O intervalo sorteia dias inteiros.
+
+| Par | Min | n | Acerto | Intervalo de 95% | p ajustado | Atraso de 1 min | Trimestres acima |
+|---|---:|---:|---:|---|---:|---:|---:|
+| ETH | 15 | 6.036 | 57,19% | 55,91–58,52% | < 0,0001 | 56,33% | 6/6 |
+| ETH | 5 | 17.740 | 56,21% | 55,51–56,91% | < 0,0001 | 55,31% | 6/6 |
+| BTC | 15 | 4.627 | 56,19% | 54,79–57,64% | 0,013 | 55,31% | 4/6 |
+| BTC | 60 | 1.419 | 56,66% | 54,06–59,38% | 0,155 | 55,81% | 4/6 |
+| SOL | 15 | 4.299 | 55,38% | 53,82–56,87% | 0,206 | 55,15% | 5/6 |
+| ETH | 60 | 1.339 | 55,27% | 52,54–57,92% | 0,583 | 55,34% | 5/6 |
+| BTC | 5 | 12.405 | 54,66% | 53,70–55,56% | 0,352 | 54,01% | 5/6 |
+| SOL | 5 | 15.757 | 54,29% | 53,48–55,04% | 0,583 | 53,32% | 3/6 |
+| SOL | 60 | 1.376 | 51,96% | 49,33–54,63% | 0,943 | 52,19% | 1/6 |
+
+Controles em ETH, 15 min: esconder o futuro não muda nenhum atributo, e o rótulo embaralhado dá 48,88%. É candidato, não aprovação: a área selada não foi aberta, e o resultado depende do preço e do payout reais da corretora. Com payout de 75%, ETH 15 min fica no zero. Em 91% dos sinais o modelo aposta contra os últimos 15 minutos.
+
+## Combinações de metodologias (`mneme.laboratorio combinacoes`)
+
+Sete combinações, em 15 e 60 min de gráfico, com saída em 15 e 60 min. Cortes fixados antes de medir. Nenhuma das 84 medições passa do empate ou de 50% depois da correção, e 18 têm menos de 100 sinais. A melhor foi Fibonacci + suporte/resistência em BTC (54,04%, n = 644, limite inferior de 50,18%), sem significância. As combinações reduzem sinais sem ganho consistente sobre a melhor parte.
+
+Partes isoladas: RSI extremo fica perto de 55% nos três pares (limite inferior de até 53,99%, abaixo do empate). Rompimento acerta só de 43% a 44%. Tudo aponta para reversão de curto prazo. Operar contra rompimentos é hipótese nova, a registrar antes de medir.
+
 ## Limites desta medição
 
 - São só 24 meses, e os pares são correlacionados: Holm é conservador nesse caso.

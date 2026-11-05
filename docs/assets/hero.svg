@@ -53,7 +53,7 @@
     <g class="tape" font-size="14">
       <g id="t">
         <text x="24" y="36"><tspan class="text" font-weight="600">Machine learning</tspan><tspan class="up" dx="8">›</tspan><tspan class="muted" dx="8">LightGBM · XGBoost</tspan></text>
-        <text x="324" y="36"><tspan class="text" font-weight="600">Validação</tspan><tspan class="up" dx="8">›</tspan><tspan class="muted" dx="8">walk-forward com purga e embargo</tspan></text>
+        <text x="324" y="36"><tspan class="text" font-weight="600">Validação</tspan><tspan class="up" dx="8">›</tspan><tspan class="muted" dx="8">purga e embargo</tspan></text>
         <text x="624" y="36"><tspan class="text" font-weight="600">LLM local</tspan><tspan class="up" dx="8">›</tspan><tspan class="muted" dx="8">Ollama · LangGraph · RAG</tspan></text>
         <text x="924" y="36"><tspan class="text" font-weight="600">Risco</tspan><tspan class="up" dx="8">›</tspan><tspan class="muted" dx="8">determinístico e independente</tspan></text>
       </g>

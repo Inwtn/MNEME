@@ -12,9 +12,19 @@
 
 ---
 
-**MNEME** é uma plataforma de inteligência financeira para mercados de cripto. Ela combina engenharia de dados, machine learning, análise quantitativa e IA generativa para estudar o mercado, testar hipóteses, identificar oportunidades e gerar sinais, com uma regra central: **nenhuma estratégia é aceita sem prova medida em dados que ela nunca viu**.
+**MNEME** é uma plataforma de inteligência financeira para cripto, forex e opções digitais. Ela combina engenharia de dados, machine learning, análise quantitativa e IA generativa para estudar o mercado, testar hipóteses, identificar oportunidades e gerar sinais, com uma regra central: **nenhuma estratégia é aceita sem prova medida em dados que ela nunca viu**.
 
 Não é um bot de indicadores, nem um chatbot que opina sobre preço. É um sistema científico de trading, em que cada decisão pode ser reconstruída, auditada e comparada com o que aconteceu de fato.
+
+## Mercados
+
+Cada mercado tem seus próprios modelos, custos, métricas e regras de risco. Nada é generalizado de um para o outro.
+
+| Mercado | Modalidade | Atuação |
+|---|---|---|
+| **Solana** (Jupiter) | Tokens e pools de liquidez | Análise, sinais e execução |
+| **Binance** | Cripto à vista | Análise, sinais e execução |
+| **Quotex** | Forex e opções digitais | Análise e sinais de direção, com horário e expiração |
 
 ## Por que híbrido
 
@@ -94,7 +104,7 @@ O sistema tem **dois caminhos separados**. O caminho rápido calcula, decide e p
 | **Machine learning** | scikit-learn, LightGBM, XGBoost, MLflow |
 | **IA generativa** | Ollama, modelos Qwen quantizados, LangGraph, RAG, fastembed |
 | **Bancos** | PostgreSQL, pgvector, Cloudflare D1, SQLite |
-| **Mercados** | Binance, Solana, Jupiter, DexScreener |
+| **Mercados** | Binance, Solana, Jupiter, DexScreener, Quotex |
 | **Infraestrutura** | Docker Compose, Oracle Cloud ARM64, Cloudflare Pages e Workers, GitHub Actions |
 | **Interfaces** | Site com gráficos de mercado, bot do Telegram |
 | **Qualidade** | pytest, Vitest, TA-Lib como referência de cálculo |
@@ -105,7 +115,7 @@ O sistema tem **dois caminhos separados**. O caminho rápido calcula, decide e p
 - **Walk-forward com purga e embargo:** o treino nunca encosta no período de teste.
 - **Dados point-in-time:** cada registro guarda quando aconteceu e quando chegou, para reconstruir o que o sistema sabia em cada instante.
 - **Correção por múltiplos testes:** Deflated Sharpe Ratio e probabilidade de sobreajuste, com registro de toda tentativa.
-- **Custos reais:** taxa, slippage e payout entram em todo resultado.
+- **Custos reais:** taxa, slippage e payout entram em todo resultado. Em opções digitais, o acerto é comparado ao ponto de empate do payout, como 54,05% com payout de 85%.
 
 **Machine learning aplicado a finanças**
 - **Triple-barrier e meta-labeling:** alvos que refletem operações reais e modelos que aprendem quando confiar em uma regra.

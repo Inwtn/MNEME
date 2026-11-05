@@ -32,7 +32,7 @@ A máquina é uma A1 com **2 OCPU, 12 GB e 142 GB livres**, e a regra é custo z
 | PyTorch | **Só em pesquisa** | Fase 10 | Pesado; usar CPU na A1 só para inferência, com treino fora | Sem deep learning |
 | Stable-Baselines3 | **Só em pesquisa** | Fase 10 | MIT; depende de um simulador confiável, que vem antes | Regras de tamanho fixas |
 | FinRL | **Não adotar como base** | Fase 10, como referência | O próprio projeto indica outro repositório para produção; manutenção incerta | Stable-Baselines3 |
-| vectorbt | **Só pesquisa interna** | Reavaliar na fase 2 | Licença com Commons Clause, a validar por causa do grupo pago. Backtest próprio é necessário para custos por mercado | Backtest próprio |
+| vectorbt | **Só pesquisa interna** | Reavaliar na fase 2 | Licença com Commons Clause, a validar. Backtest próprio é necessário para custos por mercado | Backtest próprio |
 | TA-Lib | **Opcional** | Fase 2 | Binário ARM incluso. Usar se as fórmulas próprias não bastarem, conferindo licença | Fórmulas próprias com testes |
 | MLflow | **Mínimo** | Fase 6 | `mlflow-skinny` em arquivo local, sem servidor sempre ligado. Conferir a licença declarada | Tabela própria |
 | FastAPI | **Só se necessário** | Fase 8 | Hoje o robô não recebe conexões, e isso é mais seguro. Enviar resumos para o site atende ao painel | Sem API |

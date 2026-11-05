@@ -91,7 +91,7 @@ Status: aguardando
 - Não promete lucro, nem usa "garantido" ou "certeza".
 - Não cita traders nem a fonte de sinais.
 - Não pede dinheiro nem recomenda valor em reais.
-- Aviso de risco fixo, com o texto definido no parecer jurídico (R3).
+- Aviso de risco fixo em toda mensagem.
 - Dica velha expira. O código atual já descarta dicas com mais de 10 minutos.
 - "Sem oportunidade" é uma resposta válida: resumo periódico, sem gerar ruído a cada ciclo.
 

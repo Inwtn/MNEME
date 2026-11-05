@@ -1,6 +1,6 @@
 # O robô MNEME
 
-Este é o documento de referência do robô. A visão do produto, que vale acima de qualquer pedido, está no `AGENTS.md`.
+Este é o documento de referência do robô.
 
 ## O que ele faz
 
@@ -62,5 +62,5 @@ Os valores ficam na tabela `paper_training_settings` (D1 `mneme-operational`) e 
 
 ## Fora deste robô
 
-- O **bot local** em `src/` (Node, VPS, Docker) é legado e será aposentado depois que a execução real for levada para o robô da nuvem. A documentação dele (`system-design.md`, `codigo.md`, `operacao.md`, `deploy.md`, `vps.md`, `worker-bot.md`) descreve esse bot, não o robô.
-- A **consulta de tokens** no Telegram (`/buscar` e afins) continua como está e será substituída no futuro por uma IA generativa ([inteligência e busca](inteligencia-e-busca.md)).
+- O **bot local** em `src/` (Node e Docker) é legado e será aposentado depois que a execução real for levada para o robô.
+- A **consulta de tokens** no Telegram (`/buscar` e afins) continua como está e será substituída no futuro por uma IA generativa.

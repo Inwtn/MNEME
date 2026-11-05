@@ -1,6 +1,6 @@
 # Execution Engine
 
-**Situação:** proposta aguardando aprovação. Hoje o robô Python só simula. Esta é uma análise técnica, não um parecer jurídico.
+**Situação:** proposta aguardando aprovação. Hoje o robô Python só simula.
 
 ## O que cada mercado permite
 
@@ -8,8 +8,8 @@
 |---|---|---|---|---|---|
 | Solana (Jupiter) | Sim | Sim | Depois da promoção | Depois da promoção | API documentada, chave local |
 | Binance Spot | Sim | Sim | Depois da promoção | Depois da promoção | API oficial, com chave restrita |
-| Binance Futuros | Só leitura | **Não** | **Bloqueado** | **Bloqueado** | Ver abaixo |
-| Forex e opções digitais na Quotex | Sim, em fonte de referência | Sim, sujeito ao parecer | **Não** | **Não** | Sem API oficial encontrada |
+| Binance Futuros | Só leitura | **Não** | **Bloqueado** | **Bloqueado** | Fora do escopo de execução |
+| Forex e opções digitais na Quotex | Sim, em fonte de referência | Sim | **Não** | **Não** | Sem API oficial encontrada |
 | Forex em outra corretora | - | - | - | - | Fora de escopo até nova decisão |
 
 Essa matriz fica em configuração, e o código recusa o que estiver bloqueado. Abrir uma célula bloqueada exige um novo ADR, e não basta uma mudança na tela.
@@ -17,13 +17,11 @@ Essa matriz fica em configuração, e o código recusa o que estiver bloqueado. 
 ### Quotex
 
 - **Integração:** nenhuma API oficial foi encontrada. O site não pôde ser lido daqui, então os termos não foram conferidos diretamente. Fontes secundárias dizem que não há API pública, e [uma biblioteca não oficial cita uma mensagem atribuída à corretora](https://pypi.org/project/quotexpy/1.40.1) sobre bloqueio de contas por uso de robôs.
-- **Regulação:** a [CVM alertou em dezembro de 2025](https://financenews.com.br/2025/12/cvm-alerta-para-atuacao-irregular-de-maxbit-llc/) sobre a Maxbit LLC, que usa a marca Quotex para captar clientes no Brasil, e [o alerta consta no I-SCAN da IOSCO](https://www.iosco.org/i-scan/?id=23328). Não foi encontrada uma stop order específica. Outros reguladores também emitiram alertas.
 - **Decisão:** nenhum executor. Conforme o próprio pedido, sem automação de navegador, engenharia reversa ou endpoints privados. Sinais e execução ficam separados, e a execução fica de fora.
-- **Enviar sinais pagos** voltados a essa corretora é um risco à parte: ver R1 e R3 em [RESEARCH_BACKLOG](RESEARCH_BACKLOG.md).
 
 ### Binance Futuros
 
-A CVM [determinou em 2020 que a Binance parasse de oferecer derivativos no Brasil](https://www.theblock.co/linked/70481/brazil-binance-derivatives-regulators), e o caso terminou em [acordo de R$ 9,6 milhões](https://www.theblock.co/post/311231/binance-and-brazils-sec-reach-agreement-years-after-the-regulator-banned-derivatives-products). Não foi encontrada mudança em 2026. Da A1, os dados públicos responderam, mas ler dados não dá direito a operar. A proposta é usar **funding e open interest como atributos e bloquear a execução**, até que um parecer indique uma via regular.
+Os dados públicos servem de atributos, como funding e open interest. A execução fica bloqueada neste projeto.
 
 ## Modos
 

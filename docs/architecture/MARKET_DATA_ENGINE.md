@@ -27,12 +27,12 @@ Uma consulta "como de T" só devolve dados com `recebido_em <= T`. Em histórico
 | Funding | Binance Futuros `premiumIndex` | Não | Sim | **Só leitura**; termos a conferir |
 | Open interest | Binance Futuros | Não | Sim | **Só leitura** |
 | Liquidações | Stream de futuros | A confirmar | Não | Só amostra instantânea, não é o total |
-| Traders | Provedor de sinais | Sim, paga | Em uso | Sigilo e crédito |
+| Traders | Provedor de sinais | Sim, paga | Em uso | Cobra por crédito |
 | Tokens Solana | DexScreener | Não | Em uso | 300 req/min, conforme documentação |
 | On-chain | RPC, Helius | Conforme plano | Não | Começar no plano grátis |
 | Risco de token | GoPlus | A confirmar | Não | Só aviso, nunca garantia |
 | Forex histórico | Dukascopy | Não | Não | Termos não confirmados |
-| Forex ao vivo | A definir | A definir | Não | Pesquisa R5 |
+| Forex ao vivo | A definir | A definir | Não | A pesquisar |
 | Juros, dólar | BCB SGS | Não | Sim | Licença ODbL; máximo de 10 anos por consulta |
 | Macro EUA | Órgãos de origem (BEA, Fed; BLS a confirmar) | Não | BEA e Fed sim; BLS 403 no teste | **FRED fica fora do treino**: os termos proíbem esse uso |
 | Comunicados | RSS do Fed | Não | Sim | |
@@ -133,7 +133,7 @@ Pares começam em BTC, ETH e SOL, e só crescem depois da medição.
 
 ## Backup
 
-Diário, com `pg_dump` e cópia de Parquet para fora da A1, verificado por restauração de teste. O destino gratuito fica a definir (pesquisa R12), com a cópia para a máquina do dono como opção inicial. Antes de copiar para qualquer serviço de terceiros, os dados são cifrados.
+Diário, com `pg_dump` e cópia de Parquet para fora da A1, verificado por restauração de teste. O destino gratuito fica a definir, com a cópia para a máquina do dono como opção inicial. Antes de copiar para qualquer serviço de terceiros, os dados são cifrados.
 
 ## Atributos
 

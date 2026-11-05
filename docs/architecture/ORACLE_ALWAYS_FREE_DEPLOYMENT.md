@@ -77,7 +77,7 @@ Depois de descarregar, o Ollama voltou a cerca de 40 MB.
 | Consulta ao RAG | LLM, sob demanda, com tempo de minutos aceitável |
 | Tema da notícia | LLM com lista fechada; a medir |
 
-**Modelo inicial proposto:** `qwen3:1.7b`, com `qwen2.5:3b` como rival. A escolha final vem do teste com centenas de notícias rotuladas (R24). `qwen3:0.6b` fica para filtro barato, se atingir a qualidade. Com um contexto de RAG de 1.500 tokens e resposta de 400, a estimativa é de cerca de 45 s no 1.7b e 65 s no 3b. Isso serve para análise, e não para decisão de ordem. Tarefas longas não cabem em operações de segundos.
+**Modelo inicial proposto:** `qwen3:1.7b`, com `qwen2.5:3b` como rival. A escolha final vem do teste com centenas de notícias rotuladas. `qwen3:0.6b` fica para filtro barato, se atingir a qualidade. Com um contexto de RAG de 1.500 tokens e resposta de 400, a estimativa é de cerca de 45 s no 1.7b e 65 s no 3b. Isso serve para análise, e não para decisão de ordem. Tarefas longas não cabem em operações de segundos.
 
 ## 4. Distribuição de memória
 
@@ -180,7 +180,7 @@ Propostas iniciais, a ajustar com a medição:
 | `compose.yaml` | No git | Sem segredos |
 
 - Cópias que saírem das máquinas do dono são cifradas antes.
-- O Object Storage grátis da Oracle é uma opção, a confirmar (R12), mas não protege contra perda da conta. A Micro serve como cópia recente, com o mesmo limite.
+- O Object Storage grátis da Oracle é uma opção, a confirmar, mas não protege contra perda da conta. A Micro serve como cópia recente, com o mesmo limite.
 - **Alvos propostos:** perder no máximo 24 horas de dados e recuperar em até 2 horas.
 
 ### Recuperação
@@ -197,7 +197,7 @@ Uma restauração completa será testada na fase 0 e repetida periodicamente.
 
 Fluxo:
 
-1. Na máquina do dono, com testes e `sigilo.sh`, gerar um pacote da versão, marcado com o commit.
+1. Na máquina do dono, com os testes, gerar um pacote da versão, marcado com o commit.
 2. Enviar por SSH, sem segredos, e montar as imagens na A1.
 3. Migrar o banco, se houver.
 4. Subir com `docker compose up -d`, verificando a saúde dos serviços.

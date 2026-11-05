@@ -15,7 +15,7 @@ const TYPES: Record<string, string> = { ".html": "text/html; charset=utf-8", ".c
 
 /**
  * Servidor HTTP do painel. Por padrão só escuta em 127.0.0.1; fora disso exige senha.
- * Num servidor, prefira manter 127.0.0.1 e acessar por túnel SSH (ver docs/deploy.md).
+ * Num servidor, prefira manter 127.0.0.1 e acessar por túnel SSH.
  * Escritas exigem o cabeçalho x-mneme: um site
  * de terceiros não consegue enviá-lo sem permissão de CORS, o que impede que outra
  * página aberta no navegador mande o bot comprar ou vender.

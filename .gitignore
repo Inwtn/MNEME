@@ -4,3 +4,12 @@ data/
 .env.*
 *.log
 .claude/launch.json
+
+# Local e privado: nunca publicar
+privado/
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+.claude/
+.github/copilot-instructions.md
+scripts/sigilo.sh

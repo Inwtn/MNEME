@@ -1,6 +1,6 @@
 # Robô MNEME (Python)
 
-O robô que aprende com o mercado e opera **no simulado** antes de qualquer dinheiro real. A visão completa está no `AGENTS.md`.
+O robô que aprende com o mercado e opera **no simulado** antes de qualquer dinheiro real.
 
 ## O que ele faz hoje
 

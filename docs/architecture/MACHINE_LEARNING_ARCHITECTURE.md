@@ -101,7 +101,7 @@ Nada é promovido automaticamente: a máquina só pode rebaixar sozinha. Promove
 | 0 Hipótese | Regra escrita | Nada |
 | 1 Backtest | Passa fora da amostra, com custos e correção | Nada |
 | 2 Simulado ao vivo | Sinais reais gravados, sem envio | Gravar |
-| 3 Sinal | Passou no nível 2 e no parecer jurídico aplicável | Enviar no Telegram |
+| 3 Sinal | Passou no nível 2 | Enviar no Telegram |
 | 4 Capital mínimo | Passou no nível 3, com aprovação explícita | Operar com o menor valor possível |
 | 5 Capital normal | Resultado real compatível com o simulado | Operar dentro dos limites |
 

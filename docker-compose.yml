@@ -20,7 +20,7 @@ services:
 
   # Opcional: publica o painel pela Cloudflare (Tunnel + Access), sem abrir portas.
   # Ligar com: docker compose --profile cloudflare up -d
-  # No painel da Cloudflare, aponte o hostname do túnel para http://mneme:4740 (docs/deploy.md).
+  # No painel da Cloudflare, aponte o hostname do túnel para http://mneme:4740.
   cloudflared:
     image: cloudflare/cloudflared:2026.9.2
     container_name: mneme-tunnel

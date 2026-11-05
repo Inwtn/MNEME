@@ -56,7 +56,7 @@ O kill switch precisa funcionar mesmo sem o site, por isso é verificado também
 
 | Risco | Situação | Defesa |
 |---|---|---|
-| Configurações alteradas por terceiros | O código só exige um cabeçalho (auditoria A1) | Autenticação real; mudanças com histórico; modo real não aceita afrouxar limites sem confirmação |
+| Configurações alteradas por terceiros | Autenticação a reforçar | Autenticação real; mudanças com histórico; modo real não aceita afrouxar limites sem confirmação |
 | Máquina retomada ou perdida | A1 sem backup | Backup; reconciliação; aviso se o robô parar |
 | Robô parado com posição aberta | Possível | Verificação externa de atividade, com aviso; ordens de proteção onde houver |
 | Dois robôs ao mesmo tempo | Risco na migração do Mac | Trava de instância no banco, com um único detentor |
@@ -65,10 +65,6 @@ O kill switch precisa funcionar mesmo sem o site, por isso é verificado também
 | Injeção por notícia | Conteúdo externo | LLM sem ferramenta de ordem |
 | Vazamento de chave | Sempre | Chave restrita, carteira dedicada |
 | Relógio errado | Possível | NTP; recusa se houver desvio além do limite |
-
-## Riscos de negócio e regulatórios
-
-Não são resolvidos por código. Exigem parecer: [R1 a R4](RESEARCH_BACKLOG.md). O registro de resultado também importa para eventual obrigação fiscal.
 
 ## Testes obrigatórios
 
@@ -86,5 +82,4 @@ Não são resolvidos por código. Exigem parecer: [R1 a R4](RESEARCH_BACKLOG.md)
 - [ ] Kill switch testado
 - [ ] Reconciliação testada
 - [ ] Estratégia em nível 4
-- [ ] Parecer aplicável concluído
 - [ ] Aprovação explícita do dono

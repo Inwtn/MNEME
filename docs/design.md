@@ -1,6 +1,5 @@
 # MNEME: design
 
-Skills instaladas em `.claude/skills/`: **frontend-design** (Anthropic) para o processo e **power** (typeui) como referência de tokens. A primeira versão seguiu o Power ao pé da letra (Oswald gigante e mono em tudo) e foi descartada por parecer feita por IA.
 
 ## Conceito
 

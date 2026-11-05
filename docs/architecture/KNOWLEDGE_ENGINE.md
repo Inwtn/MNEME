@@ -73,7 +73,7 @@ Cada método vira regra testável. Quando a regra é subjetiva e não pode ser e
 | RSS do Fed | Comunicados oficiais | Acessível da A1 |
 | BCB | Séries e comunicados | SGS acessível da A1 |
 | GDELT DOC 2.0 | Notícias globais, 2017 em diante | **Exige uma consulta a cada 5 s**; a A1 recebeu 429. Só manchetes e metadados; alguns modos limitados a 3 meses |
-| Redes sociais | Narrativa | Sem fonte gratuita definida; pesquisa R9 |
+| Redes sociais | Narrativa | Sem fonte gratuita definida; |
 | Calendário econômico | Agenda, consenso e surpresa | Agendas oficiais acessíveis; ver [MARKET_DATA_ENGINE](MARKET_DATA_ENGINE.md) e [ADR-0014](ADR/0014-calendario-economico.md) |
 
 ### As 12 etapas

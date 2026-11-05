@@ -4,7 +4,7 @@
 
 ## Ordem de implementação
 
-Definida pelo dono em 05/11/2026: construir, testar, medir e evoluir. Esta ordem manda sobre as fases abaixo, que ficam como referência de conteúdo. Pendências externas ([lista](RESEARCH_BACKLOG.md#pendências-externas)) são registradas e não bloqueiam os módulos.
+Definida pelo dono em 05/11/2026: construir, testar, medir e evoluir. Esta ordem manda sobre as fases abaixo, que ficam como referência de conteúdo.
 
 | Entrega | O que funciona ao final | Critério |
 |---|---|---|
@@ -49,7 +49,7 @@ Tornar seguro o que já roda.
 - Passar o robô do Mac para a A1, em Docker Compose com limites, com trava de instância.
 - Backup diário, com restauração testada; monitor de recursos e vigia na Micro.
 - Corrigir a autenticação de Configurações e preencher os limites do simulado.
-- Atualizar `README.md`, `docs/robo.md` e `.env.example`.
+- Atualizar `README.md` e `docs/robo.md`.
 - Rodar testes Python no CI.
 
 **Pronto quando:** o robô roda na A1 por 7 dias sem intervenção; uma restauração funciona; o `PUT` sem autenticação é recusado.
@@ -150,8 +150,6 @@ Não promete lucro, nem que algum modelo passará. O curto prazo é quase aleat�
 ## Próximas decisões do dono
 
 1. Aprovar este roadmap e os critérios de promoção.
-2. Tratar as pendências externas quando fizer sentido; elas não bloqueiam os módulos.
 3. Confirmar o modelo local, depois de ver as medições.
 4. Definir os limites de risco por mercado.
 5. Autorizar o uso de créditos do provedor na A1.
-6. Decidir se o `AGENTS.md` passa a incluir forex e futuros como dados.

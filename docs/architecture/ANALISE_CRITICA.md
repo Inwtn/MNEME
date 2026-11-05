@@ -8,7 +8,6 @@
 - A divisão mais importante é: **o LLM entende e explica; o ML mede e estima; o código decide e protege.**
 - A infraestrutura gratuita aguenta o MVP. O limite real não é memória, e sim a **qualidade do LLM pequeno** e o **tamanho das amostras**.
 - O maior risco para o resultado é a hipótese central: pode não haver vantagem depois dos custos. A arquitetura é feita para descobrir isso gastando pouco.
-- O maior risco jurídico é anterior a tudo: o grupo pago de sinais e a recomendação de uma corretora alvo de alerta da CVM.
 
 ## Onde discordo da visão
 
@@ -18,7 +17,7 @@
 | LLM pequeno interpretando e raciocinando | Na medição, os modelos acertaram de 1 a 2 tipos em 5 e erraram com instrução maliciosa | Regras e listas fechadas primeiro; LLM como apoio, sempre medido |
 | Coordenador que consolida e decide | Se for LLM, não dá para medir nem reproduzir, e na A1 levaria dezenas de segundos | Coordenador em código; LLM explica depois |
 | "Trader autônomo" | Autonomia não cria vantagem; ela só executa o que já existe. Os estudos internos ainda não acharam vantagem robusta | Autonomia só depois da promoção |
-| Sinais com EUR/USD na Quotex | Sem cotação nem payout oficiais, e com alerta regulatório | Sinal medido em referência, sujeito a parecer |
+| Sinais com EUR/USD na Quotex | Sem cotação nem payout oficiais | Sinal medido em referência |
 | Aprender como "um trader de Wall Street" | Parte do que eles usam depende de dados caros, latência e capital | Estudar método e testar o que for possível; declarar o resto como inviável |
 | Deep learning e RL cedo | Pouca evidência de ganho nessa escala; dados e simulador vêm antes | Só depois de superar as referências |
 
@@ -203,18 +202,6 @@ Isso exige que a máquina do dono esteja disponível. A operação na A1 não de
 - Provedor de sinais cobra crédito; é o único custo atual obrigatório para a estratégia de seguir traders.
 - Algumas fontes úteis são pagas, sem substituto gratuito à altura: consenso global licenciado, redes sociais, dados de livro históricos. Alternativa: coletar desde já, medir com o que é permitido, e declarar a limitação.
 - Conta da Oracle agora pode gerar cobrança.
-
-### Regulatórias e de termos
-
-Esta seção não é um parecer jurídico.
-
-- [Alerta da CVM sobre a marca Quotex](https://financenews.com.br/2025/12/cvm-alerta-para-atuacao-irregular-de-maxbit-llc/).
-- [Derivativos da Binance proibidos pela CVM](https://www.theblock.co/post/311231/binance-and-brazils-sec-reach-agreement-years-after-the-regulator-banned-derivatives-products).
-- Grupo pago de recomendações: [RCVM 19 e 20 podem se aplicar](https://www.compliasset.com/?p=13083).
-- [Resoluções BCB 519 a 521](https://www.machadomeyer.com.br/pt/inteligencia-juridica/publicacoes-ij/bancario-seguros-e-financeiro-ij/bcb-regulamenta-o-mercado-de-ativos-virtuais-no-brasil).
-- [Termos do FRED proíbem treinar ML](https://fred.stlouisfed.org/legal/terms/).
-- [Investing.com restringe o uso dos dados](https://www.investing.com/about-us/terms-and-conditions).
-- Direitos autorais de livros usados no RAG.
 
 ### De resultado
 

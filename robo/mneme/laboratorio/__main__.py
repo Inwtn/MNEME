@@ -23,6 +23,7 @@ from ..dados.calendario import FonteCalendario
 from ..dados.eventos import ArmazemEventos
 from ..dados.resultados_macro import FonteResultados, surpresas
 from ..noticias import com_noticias
+from .combinacoes import COMBINACOES, medir_regra, sinais, sobreposicao
 from .estudo_eventos import com_macro, ganho_da_agenda, reacoes, resumir, volatilidade_em_torno
 from ..previsor import PADRAO_REFERENCIA, REFERENCIA
 from ..setups import SETUPS, NOME_FIMATHE, setups_configurados
@@ -317,6 +318,39 @@ def estudar_agenda(armazem: ArmazemVelas, registro: Registro, raiz: str, pares: 
     _salvar(pasta, "agenda", saida)
 
 
+def estudar_combinacoes(armazem: ArmazemVelas, registro: Registro, pares: list[str], payout: float, pasta: Path, tempos: tuple[str, ...] = ("15min", "60min"), horizontes: tuple[int, ...] = (15, 60)) -> None:
+    """Combinações e suas partes, com os cortes já fixados. Só desenvolvimento. Tudo entra na correção por múltiplos testes, inclusive o que não deu certo."""
+    linhas, sobreposicoes = [], {}
+    for par in pares:
+        v = armazem.ler(par)
+        v = v[v.index < SELADO_DESDE]
+        dados = impressao_dos_dados(v)
+        for tempo in tempos:
+            tabela = sinais(v, tempo)
+            sobreposicoes[f"{par}|{tempo}"] = sobreposicao(tabela, list(COMBINACOES)).round(3).to_dict()
+            for nome in tabela.columns:
+                for h in horizontes:
+                    r = {"regra": nome, "tipo": "combinacao" if nome in COMBINACOES else "parte", "par": par, "tempo": tempo, "horizonte": h, **medir_regra(v, tabela[nome], h, payout)}
+                    linhas.append(r)
+                    registro.anotar("combinacoes", nome, {"par": par, "tempo": tempo, "horizonte": h, "payout": payout}, dados, r)
+            print(f"{par} {tempo}: {len(tabela)} velas com algum sinal", flush=True)
+    medidas = [l for l in linhas if l["sinais"]]
+    for l, p, p50 in zip(medidas, holm([l["p_valor"] for l in medidas]), holm([l["p_contra_50"] for l in medidas])):
+        l["p_ajustado"], l["p50_ajustado"] = p, p50
+    _salvar(pasta, "combinacoes", linhas)
+    _salvar(pasta, "combinacoes_sobreposicao", [sobreposicoes])
+    print(f"\nEmpate {_pct(empate(payout))}; {len(medidas)} medições; correção por todas elas. Só combinações com 100 sinais ou mais:")
+    print("| Combinação | Par | Tempo | Min | Sinais | Acerto | Lim. inf. | Com atraso | Placebo | 1ª metade | 2ª metade | p>50 aj. | p>empate aj. | Melhor parte |\n|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
+    for l in sorted((l for l in medidas if l["tipo"] == "combinacao" and l["sinais"] >= 100), key=lambda l: -l["limite_inferior"]):
+        pares_da_regra = [p["acerto"] for p in medidas if p["regra"] in COMBINACOES[l["regra"]] and p["par"] == l["par"] and p["tempo"] == l["tempo"] and p["horizonte"] == l["horizonte"] and p["sinais"] >= 100]
+        melhor = _pct(max(pares_da_regra)) if pares_da_regra else "-"
+        print(f"| {l['regra']} | {l['par']} | {l['tempo']} | {l['horizonte']} | {l['sinais']} | {_pct(l['acerto'])} | {_pct(l['limite_inferior'])} | {_pct(l['acerto_com_atraso'])} | {_pct(l['placebo'])} | {_pct(l['acerto_primeira_metade'])} | {_pct(l['acerto_segunda_metade'])} | {l['p50_ajustado']:.3f} | {l['p_ajustado']:.3f} | {melhor} |")
+    sem = [l for l in linhas if l["tipo"] == "combinacao" and l["sinais"] < 100]
+    print(f"\nCom menos de 100 sinais, sem conclusão: {len(sem)} de {sum(l['tipo'] == 'combinacao' for l in linhas)}.")
+    fortes = [l for l in medidas if l["p_ajustado"] < 0.05]
+    print(f"Passaram do empate após a correção: {len(fortes)}. " + "; ".join(f"{l['regra']} {l['par']} {l['tempo']} {l['horizonte']}min {_pct(l['acerto'])} n={l['sinais']}" for l in fortes))
+
+
 def treinar_finais(armazem: ArmazemVelas, registro: Registro, raiz: str, pares: list[str], horizontes: list[int], pasta_modelos: Path) -> None:
     for par in pares:
         atributos, v, dados = _base_de_previsao(armazem, par, raiz)
@@ -359,6 +393,7 @@ def main() -> None:
     sub.add_parser("macro-importar").add_argument("--meses", type=int, default=24)
     sub.add_parser("macro")
     sub.add_parser("agenda")
+    sub.add_parser("combinacoes").add_argument("--payout", type=float, default=0.85)
     se = sub.add_parser("selado")
     se.add_argument("par")
     se.add_argument("setup", choices=list(SETUPS))
@@ -401,6 +436,8 @@ def main() -> None:
         estudar_macro(armazem, registro, args.raiz, pares, pasta)
     elif args.comando == "agenda":
         estudar_agenda(armazem, registro, args.raiz, pares, pasta)
+    elif args.comando == "combinacoes":
+        estudar_combinacoes(armazem, registro, pares, args.payout, pasta)
     elif args.comando == "selado":
         abrir_selado(armazem, registro, args.raiz, args.par, args.setup, args.minutos, args.payout, pasta)
     elif args.comando == "treinar":

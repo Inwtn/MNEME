@@ -43,7 +43,8 @@ class Inteligencia:
         self.batimento = Path(raiz) / "inteligencia.batimento"
         self.ultimos: dict[str, datetime] = {}
         self.ultimo_post: dict[str, str] = {}
-        self.conhecidas = set(self.eventos.ler("noticias", "GLOBAL", inicio=self.relogio() - timedelta(days=7)).get("id", pd.Series(dtype=str)))
+        # Todas as já vistas: feeds trazem itens antigos, e regravá-los falsificaria a hora em que a notícia chegou.
+        self.conhecidas = set(self.eventos.ler("noticias", "GLOBAL").get("id", pd.Series(dtype=str)))
 
     def _na_hora(self, nome: str, minutos: int, agora: datetime) -> bool:
         if nome in self.ultimos and agora - self.ultimos[nome] < timedelta(minutes=minutos):

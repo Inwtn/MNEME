@@ -24,7 +24,8 @@ from ..dados.eventos import ArmazemEventos
 from ..dados.resultados_macro import FonteResultados, surpresas
 from ..noticias import com_noticias
 from .combinacoes import COMBINACOES, medir_regra, sinais, sobreposicao
-from .estudo_eventos import com_macro, ganho_da_agenda, reacoes, resumir, volatilidade_em_torno
+from .estudo_eventos import COLUNAS_AGENDA, com_macro, ganho_da_agenda, reacoes, resumir, volatilidade_em_torno
+from .robustez import estressar
 from ..previsor import PADRAO_REFERENCIA, REFERENCIA
 from ..setups import SETUPS, NOME_FIMATHE, setups_configurados
 from .avaliacao import separar_selado
@@ -351,6 +352,33 @@ def estudar_combinacoes(armazem: ArmazemVelas, registro: Registro, pares: list[s
     print(f"Passaram do empate após a correção: {len(fortes)}. " + "; ".join(f"{l['regra']} {l['par']} {l['tempo']} {l['horizonte']}min {_pct(l['acerto'])} n={l['sinais']}" for l in fortes))
 
 
+def estudar_robustez(armazem: ArmazemVelas, registro: Registro, raiz: str, pares: list[str], payout: float, pasta: Path, horizontes: tuple[int, ...] = (5, 15, 60)) -> None:
+    """Tenta derrubar os confiantes do LightGBM, com os mesmos atributos do estudo original. Só desenvolvimento."""
+    referencia = empate(payout)
+    linhas = []
+    for par in pares:
+        atributos, v, dados = _base_de_previsao(armazem, par, raiz)
+        atributos = atributos.drop(columns=[c for c in atributos if c in COLUNAS_AGENDA or c.startswith("n_")])
+        for h in horizontes:
+            x, y = amostrar(atributos, alvos(v, h), h)
+            dev, _ = separar_selado(x.index, SELADO_DESDE)
+            r = {"par": par, "horizonte": h, **estressar(x[dev], y.loc[dev, "sobe"], v[v.index < SELADO_DESDE], h, referencia, CLASSIFICADORES["LightGBM"])}
+            linhas.append(r)
+            registro.anotar("robustez_confiantes", "LightGBM", {"par": par, "horizonte": h, "payout": payout}, dados, r)
+            print(json.dumps(r, ensure_ascii=False, default=float), flush=True)
+    medidas = [l for l in linhas if l.get("confiantes")]
+    for l, p in zip(medidas, holm([l["p_contra_empate"] for l in medidas])):
+        l["p_ajustado"] = p
+    _salvar(pasta, "robustez", linhas)
+    tentativas = registro.tentativas("previsao_direcao") + registro.tentativas("robustez_confiantes")
+    print(f"\nEmpate {_pct(referencia)}. Tentativas registradas nessa família de pergunta: {tentativas}.")
+    print("| Par | Min | n | Acerto | IC 95% por dias | p aj. | Compra | Venda | Atraso 1 | Atraso 2 | Atraso 5 | Trimestres acima | Maior hora | Dias |\n|---|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
+    for l in medidas:
+        a = l["com_atraso"]
+        print(f"| {l['par']} | {l['horizonte']} | {l['confiantes']} | {_pct(l['acerto'])} | {_pct(l['ic95_dias'][0])} a {_pct(l['ic95_dias'][1])} | {l['p_ajustado']:.4f} | {_pct(l['compra']['acerto'])} | {_pct(l['venda']['acerto'])} | {_pct(a['1'])} | {_pct(a['2'])} | {_pct(a['5'])} | {l['trimestres_acima_do_empate'][0]}/{l['trimestres_acima_do_empate'][1]} | {_pct(l['maior_hora'])} | {l['dias_com_sinal']} |")
+        print("  trimestres: " + "; ".join(f"{t} {_pct(d['acerto'])} n={d['n']}" for t, d in sorted(l["por_trimestre"].items())))
+
+
 def treinar_finais(armazem: ArmazemVelas, registro: Registro, raiz: str, pares: list[str], horizontes: list[int], pasta_modelos: Path) -> None:
     for par in pares:
         atributos, v, dados = _base_de_previsao(armazem, par, raiz)
@@ -394,6 +422,7 @@ def main() -> None:
     sub.add_parser("macro")
     sub.add_parser("agenda")
     sub.add_parser("combinacoes").add_argument("--payout", type=float, default=0.85)
+    sub.add_parser("robustez").add_argument("--payout", type=float, default=0.85)
     se = sub.add_parser("selado")
     se.add_argument("par")
     se.add_argument("setup", choices=list(SETUPS))
@@ -438,6 +467,8 @@ def main() -> None:
         estudar_agenda(armazem, registro, args.raiz, pares, pasta)
     elif args.comando == "combinacoes":
         estudar_combinacoes(armazem, registro, pares, args.payout, pasta)
+    elif args.comando == "robustez":
+        estudar_robustez(armazem, registro, args.raiz, pares, args.payout, pasta)
     elif args.comando == "selado":
         abrir_selado(armazem, registro, args.raiz, args.par, args.setup, args.minutos, args.payout, pasta)
     elif args.comando == "treinar":

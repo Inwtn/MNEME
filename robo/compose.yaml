@@ -1,23 +1,40 @@
-# Serviços do MNEME na Oracle A1. Sem chaves: a coleta de velas usa só dados públicos.
+# Serviços do MNEME na Oracle A1. Sem chaves: a coleta usa só dados públicos.
+x-servico: &servico
+  build: .
+  user: "${MNEME_UID:-1001}:${MNEME_GID:-1001}"  # dono da pasta ./dados na A1
+  environment:
+    MNEME_DADOS_MERCADO: /dados/mercado
+  volumes:
+    - ./dados:/dados
+  restart: always
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
 services:
   coleta:
-    build: .
-    user: "${MNEME_UID:-1001}:${MNEME_GID:-1001}"  # dono da pasta ./dados na A1
+    <<: *servico
     command: [".venv/bin/python", "-m", "mneme.dados", "coletar"]
-    environment:
-      MNEME_DADOS_MERCADO: /dados/mercado
-    volumes:
-      - ./dados:/dados
     mem_limit: 600m
     cpus: 0.5
-    restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
     healthcheck:
       test: ["CMD", ".venv/bin/python", "-c", "import datetime as d,pathlib as p; t=d.datetime.fromisoformat(p.Path('/dados/mercado/coleta.batimento').read_text()); raise SystemExit(d.datetime.now(d.timezone.utc)-t>d.timedelta(minutes=3))"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+  # Separado das velas: uma falha aqui não interrompe a coleta principal.
+  fluxo:
+    <<: *servico
+    command: [".venv/bin/python", "-m", "mneme.dados", "fluxo"]
+    stop_grace_period: 30s
+    mem_limit: 600m
+    cpus: 0.5
+    healthcheck:
+      test: ["CMD", ".venv/bin/python", "-c", "import datetime as d,pathlib as p; t=d.datetime.fromisoformat(p.Path('/dados/mercado/fluxo/fluxo.batimento').read_text()); raise SystemExit(d.datetime.now(d.timezone.utc)-t>d.timedelta(minutes=3))"]
       interval: 60s
       timeout: 10s
       retries: 3

@@ -87,6 +87,16 @@ Na Oracle A1, a coleta roda em Docker Compose, com limite de memória e reiníci
 docker compose up -d --build
 ```
 
+### Fluxo e derivativos
+
+`mneme/dados/coleta_fluxo.py` coleta trades, livro de ofertas (20 níveis, uma foto por segundo), funding, open interest e liquidações em `dados/mercado/fluxo/`, em um serviço separado das velas. Numa queda, os trades são recuperados por REST; o livro não tem recuperação, e a lacuna fica visível. Dias fechados são compactados; o livro fica 30 dias e os trades, 365. Com o disco em 85%, o livro para de ser gravado; em 92%, os trades também. `mneme/fluxo.py` agrega tudo por minuto para modelos e backtest.
+
+```bash
+uv run python -m mneme.dados fluxo
+uv run python -m mneme.dados importar-derivativos --meses 24
+uv run python -m mneme.dados resumo-fluxo
+```
+
 ## Próximos passos
 
 A ordem de implementação está em `docs/architecture/ROADMAP.md`.

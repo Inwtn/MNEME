@@ -17,7 +17,7 @@ from .backtest import continuas
 UM_MINUTO = pd.Timedelta(minutes=1)
 TEMPOS = ("5min", "15min", "60min")
 TEMPOS_METODOLOGIAS = ("15min", "60min")
-FAMILIAS = ("v_", "m_", "f_", "c_", "d_", "t_", "e_")
+FAMILIAS = ("v_", "m_", "f_", "c_", "d_", "t_", "e_", "n_")
 MAX_MINUTOS_EVENTO = 7 * 24 * 60
 
 

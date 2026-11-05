@@ -187,16 +187,50 @@ def medidas_de_atencao(textos: pd.DataFrame, ativo: str, indice: pd.DatetimeInde
     largura = pd.Timedelta(janela)
     base = pd.Timedelta(days=base_dias)
     tempos = tabela.index.as_unit("ns").asi8
-    linhas = []
-    for t in indice:
-        fim = np.searchsorted(tempos, pd.Timestamp(t).value, side="right")
-        ini = np.searchsorted(tempos, (t - largura).value, side="right")
-        ini_base = np.searchsorted(tempos, (t - base).value, side="right")
-        n = fim - ini
-        media_base = max(fim - ini_base, 0) * largura / base
-        desvio = np.sqrt(max(media_base, 1.0))
-        trecho = tabela.iloc[ini:fim]
-        contagem = trecho["fonte"].value_counts()
-        linhas.append((float(n), float((n - media_base) / desvio), float(trecho["sentimento"].mean()) if n else 0.0, float(len(contagem)),
-                       float(contagem.iloc[0] / n) if n else 0.0, float(trecho["rumor"].mean()) if n else 0.0))
-    return pd.DataFrame(linhas, index=indice, columns=colunas)
+    instantes = pd.DatetimeIndex(indice).as_unit("ns").asi8
+    fim = np.searchsorted(tempos, instantes, side="right")
+    ini = np.searchsorted(tempos, instantes - largura.value, side="right")
+    ini_base = np.searchsorted(tempos, instantes - base.value, side="right")
+    n = (fim - ini).astype(float)
+    media_base = (fim - ini_base) * (largura / base)
+    sentimento = tabela["sentimento"].to_numpy()
+    soma = np.concatenate([[0.0], np.cumsum(np.nan_to_num(sentimento))])
+    validos = np.concatenate([[0.0], np.cumsum(~np.isnan(sentimento))])
+    rumores = np.concatenate([[0.0], np.cumsum(tabela["rumor"].to_numpy())])
+    com_sentimento = validos[fim] - validos[ini]
+    # Muitos instantes têm a mesma janela: fontes e concentração são calculadas uma vez para cada janela distinta.
+    codigos = pd.factorize(tabela["fonte"])[0]
+    janelas, posicao = np.unique(np.column_stack([ini, fim]), axis=0, return_inverse=True)
+    por_janela = np.zeros((len(janelas), 2))
+    for i, (a, b) in enumerate(janelas):
+        if b > a:
+            contagem = np.bincount(codigos[a:b])
+            por_janela[i] = (np.count_nonzero(contagem), contagem.max() / (b - a))
+    posicao = np.ravel(posicao)
+    return pd.DataFrame({"mencoes": n, "anomalia": (n - media_base) / np.sqrt(np.maximum(media_base, 1.0)),
+                         "sentimento": np.divide(soma[fim] - soma[ini], com_sentimento, out=np.zeros(len(n)), where=com_sentimento > 0),
+                         "fontes": por_janela[posicao, 0], "concentracao": por_janela[posicao, 1],
+                         "fracao_rumor": np.divide(rumores[fim] - rumores[ini], n, out=np.zeros(len(n)), where=n > 0)}, index=indice, columns=colunas)
+
+
+def com_noticias(x: pd.DataFrame, noticias: pd.DataFrame, par: str, base_dias: int = 7) -> pd.DataFrame:
+    """Colunas `n_` para os modelos, em cada vela já fechada. Antes de a coleta começar é falta de dado, nunca zero.
+
+    A anomalia só vale com a base completa, porque o primeiro lote lido dos feeds chega todo de uma vez. Sem menção, não existe sentimento.
+    """
+    colunas = {"mencoes": "n_mencoes", "anomalia": "n_anomalia", "sentimento": "n_sentimento", "fontes": "n_fontes", "concentracao": "n_concentracao", "fracao_rumor": "n_fracao_rumor"}
+    saida = pd.DataFrame(np.nan, index=x.index, columns=list(colunas.values()))
+    if not noticias.empty:
+        limpas = noticias[~noticias["suspeito"].astype(bool)] if "suspeito" in noticias else noticias
+        if not limpas.empty:
+            inicio = limpas["recebido_em"].fillna(limpas["ocorrido_em"]).min()
+            fechamentos = x.index + pd.Timedelta(minutes=1)
+            coberto = fechamentos >= inicio
+            if coberto.any():
+                m = medidas_de_atencao(limpas, par.removesuffix("USDT"), fechamentos[coberto], base_dias=base_dias).rename(columns=colunas)
+                m.index = x.index[coberto]
+                sem_mencao = m["n_mencoes"] == 0
+                m.loc[sem_mencao, ["n_sentimento", "n_concentracao", "n_fracao_rumor"]] = np.nan
+                m.loc[m.index + pd.Timedelta(minutes=1) < inicio + pd.Timedelta(days=base_dias), "n_anomalia"] = np.nan
+                saida.loc[m.index] = m
+    return x.join(saida)

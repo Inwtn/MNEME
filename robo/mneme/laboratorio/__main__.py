@@ -22,6 +22,7 @@ from ..dados.armazem import ArmazemVelas, agora_utc
 from ..dados.calendario import FonteCalendario
 from ..dados.eventos import ArmazemEventos
 from ..dados.resultados_macro import FonteResultados, surpresas
+from ..noticias import com_noticias
 from .estudo_eventos import com_macro, ganho_da_agenda, reacoes, resumir, volatilidade_em_torno
 from ..previsor import PADRAO_REFERENCIA, REFERENCIA
 from ..setups import SETUPS, NOME_FIMATHE, setups_configurados
@@ -163,7 +164,8 @@ def _base_de_previsao(armazem: ArmazemVelas, par: str, raiz: str) -> tuple[pd.Da
     v = armazem.ler(par)
     referencia = armazem.ler(REFERENCIA.get(par, PADRAO_REFERENCIA))
     eventos = ArmazemEventos(raiz)
-    return com_macro(construir(v, eventos.ler("funding", par), referencia, _fomc(raiz)), eventos.ler("resultados_macro", "GLOBAL")), v, impressao_dos_dados(v)
+    atributos = com_macro(construir(v, eventos.ler("funding", par), referencia, _fomc(raiz)), eventos.ler("resultados_macro", "GLOBAL"))
+    return com_noticias(atributos, eventos.ler("noticias", "GLOBAL"), par), v, impressao_dos_dados(v)
 
 
 def _fomc(raiz: str) -> pd.Series:

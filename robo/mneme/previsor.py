@@ -30,6 +30,7 @@ from .laboratorio.dataset import construir
 from .laboratorio.estudo_eventos import com_macro
 from .laboratorio.previsao import Artefato, carregar_artefato
 from .laboratorio.validacao import intervalo_wilson
+from .noticias import com_noticias
 
 log = logging.getLogger("mneme.previsor")
 
@@ -116,7 +117,8 @@ class Previsor:
         referencia = self.velas.ler(REFERENCIA.get(par, PADRAO_REFERENCIA), inicio=inicio, como_de=agora)
         # O funding precisa de mais histórico que as velas: as médias do treino usam 90 pagamentos.
         funding = self.eventos.ler("funding", par, inicio=agora - timedelta(days=60), como_de=agora)
-        return com_macro(construir(v, funding, referencia, self.eventos_altos()), divulgados_e_agenda(self.eventos.ler("resultados_macro", "GLOBAL"), agora))
+        atributos = com_macro(construir(v, funding, referencia, self.eventos_altos()), divulgados_e_agenda(self.eventos.ler("resultados_macro", "GLOBAL"), agora))
+        return com_noticias(atributos, self.eventos.ler("noticias", "GLOBAL", inicio=agora - timedelta(days=8), como_de=agora), par)
 
 
 def placar(raiz: Path | str, pares: list[str]) -> list[dict]:

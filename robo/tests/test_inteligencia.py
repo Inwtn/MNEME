@@ -10,7 +10,7 @@ import pandas as pd
 import pytest
 
 from mneme.inteligencia import Inteligencia
-from mneme.noticias import ColetorNoticias, Fonte, agrupar_eventos, classificar, ler_feed, limpar, medidas_de_atencao
+from mneme.noticias import ColetorNoticias, Fonte, agrupar_eventos, classificar, com_noticias, ler_feed, limpar, medidas_de_atencao
 from mneme.social import FonteX, GastoExcedido, Limites, atividade_coordenada, ler_posts
 
 AGORA = datetime(2026, 11, 5, 12, tzinfo=timezone.utc)
@@ -256,3 +256,61 @@ def test_servico_coleta_x_so_quando_ligado_e_guarda_para_estudo(tmp_path):
     assert len(pedidos) == 4
     m = medidas_de_atencao(s.eventos.ler("social", "GLOBAL"), "SOL", pd.DatetimeIndex([pd.Timestamp(AGORA + timedelta(minutes=1))]))
     assert m["mencoes"].iloc[0] == 1
+
+
+def _mencoes(tempos, ativo="BTC", fonte="a", sentimento=1.0, suspeito=False):
+    tempos = pd.DatetimeIndex(tempos)
+    return pd.DataFrame({"ativos": [[ativo]] * len(tempos), "sentimento": sentimento, "tipo": "fato", "fonte": fonte, "ocorrido_em": tempos, "recebido_em": tempos, "suspeito": suspeito})
+
+
+def _grade(inicio, minutos):
+    return pd.DataFrame({"a": 1.0}, index=pd.date_range(inicio, periods=minutos, freq="1min", tz="UTC"))
+
+
+def test_antes_da_coleta_e_falta_de_dado_e_nao_zero():
+    x = _grade("2026-11-01 00:00", 120)
+    t = _mencoes([pd.Timestamp("2026-11-01 01:00", tz="UTC")])
+    n = com_noticias(x, t, "BTCUSDT")
+    assert n["n_mencoes"].iloc[:59].isna().all()  # a vela 59 fecha às 01:00
+    assert n["n_mencoes"].iloc[59] == 1 and n["n_sentimento"].iloc[59] == 1.0
+
+
+def test_sem_mencao_depois_da_coleta_e_zero_mas_sem_sentimento():
+    x = _grade("2026-11-01 02:30", 10)
+    n = com_noticias(x, _mencoes([pd.Timestamp("2026-11-01 01:00", tz="UTC")]), "BTCUSDT")
+    assert (n["n_mencoes"] == 0).all() and n["n_sentimento"].isna().all() and n["n_concentracao"].isna().all()
+
+
+def test_anomalia_so_com_a_base_completa():
+    t = _mencoes([pd.Timestamp("2026-11-01 01:00", tz="UTC")])
+    assert com_noticias(_grade("2026-11-03 00:00", 3), t, "BTCUSDT")["n_anomalia"].isna().all()
+    assert com_noticias(_grade("2026-11-09 00:00", 3), t, "BTCUSDT")["n_anomalia"].notna().all()
+
+
+def test_noticia_suspeita_nao_vira_atributo():
+    x = _grade("2026-11-01 01:00", 5)
+    t = pd.concat([_mencoes([pd.Timestamp("2026-11-01 00:30", tz="UTC")]), _mencoes([pd.Timestamp("2026-11-01 01:01", tz="UTC")], suspeito=True, sentimento=-1.0)])
+    n = com_noticias(x, t, "BTCUSDT")
+    assert n["n_mencoes"].iloc[-1] == 1 and n["n_sentimento"].iloc[-1] == 1.0
+
+
+def test_noticia_futura_nao_muda_o_passado():
+    x = _grade("2026-11-01 01:00", 30)
+    antes = _mencoes([pd.Timestamp("2026-11-01 00:50", tz="UTC")])
+    depois = pd.concat([antes, _mencoes([pd.Timestamp("2026-11-01 01:29", tz="UTC")], sentimento=-1.0)])
+    pd.testing.assert_frame_equal(com_noticias(x, antes, "BTCUSDT").iloc[:27], com_noticias(x, depois, "BTCUSDT").iloc[:27])
+
+
+def test_medidas_vetorizadas_com_fontes_e_concentracao():
+    t = pd.concat([_mencoes([pd.Timestamp("2026-11-01 00:10", tz="UTC"), pd.Timestamp("2026-11-01 00:20", tz="UTC")], fonte="a"), _mencoes([pd.Timestamp("2026-11-01 00:30", tz="UTC")], fonte="b", sentimento=-1.0)])
+    m = medidas_de_atencao(t, "BTC", pd.DatetimeIndex([pd.Timestamp("2026-11-01 00:40", tz="UTC")])).iloc[0]
+    assert m["mencoes"] == 3 and m["fontes"] == 2 and m["concentracao"] == pytest.approx(2 / 3) and m["sentimento"] == pytest.approx(1 / 3)
+
+
+def test_um_milhao_de_linhas_e_viavel():
+    import time as _t
+    t = _mencoes(pd.date_range("2026-01-01", periods=5000, freq="30min", tz="UTC"))
+    indice = pd.date_range("2026-01-01", periods=300_000, freq="1min", tz="UTC")
+    inicio = _t.perf_counter()
+    medidas_de_atencao(t, "BTC", indice)
+    assert _t.perf_counter() - inicio < 10

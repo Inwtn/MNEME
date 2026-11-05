@@ -32,5 +32,5 @@
   <text class="l l4" x="40" y="198"><tspan class="m">tendência</tspan><tspan class="t" dx="10">baixa</tspan><tspan class="m" dx="24">estrutura</tspan><tspan class="t" dx="10">topos e fundos mais baixos</tspan></text>
   <text class="l l5" x="40" y="222"><tspan class="m">RSI 14</tspan><tspan class="t" dx="10">21,7</tspan><tspan class="m" dx="24">ADX</tspan><tspan class="t" dx="10">52,5</tspan><tspan class="m" dx="24">suporte</tspan><tspan class="t" dx="10">75.568</tspan><tspan class="m" dx="24">resistência</tspan><tspan class="t" dx="10">77.006</tspan></text>
   <g class="l l6"><text x="40" y="270" class="p">$</text><text x="62" y="270" class="t" clip-path="url(#c3)">uv run pytest -q</text></g>
-  <text class="l l7" x="40" y="298"><tspan class="ok">✔</tspan><tspan class="t" dx="10">144 passed in 9.88s</tspan><tspan class="m" dx="10">indicadores conferidos com o TA-Lib; nada olha o futuro</tspan><tspan class="cur t" dx="10">▌</tspan></text>
+  <text class="l l7" x="40" y="298"><tspan class="ok">✔</tspan><tspan class="t" dx="10">212 passed in 17.34s</tspan><tspan class="m" dx="10">indicadores conferidos com o TA-Lib; nada olha o futuro</tspan><tspan class="cur t" dx="10">▌</tspan></text>
 </svg>

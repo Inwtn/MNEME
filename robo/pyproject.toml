@@ -5,6 +5,7 @@ description = "Robô MNEME: aprende com o mercado e opera no simulado antes do d
 requires-python = ">=3.12"
 dependencies = [
   "httpx>=0.27",
+  "lightgbm>=4.6",
   "numpy>=2.5.4",
   "pandas>=3.1.0",
   "pyarrow>=26",
@@ -12,6 +13,7 @@ dependencies = [
   "scikit-learn>=1.9.1",
   "scipy>=1.14",
   "websockets>=15",
+  "xgboost>=3.0",
 ]
 
 [dependency-groups]

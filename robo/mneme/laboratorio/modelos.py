@@ -12,6 +12,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from ..estudo.velas import montar
+from .avaliacao import selecionar_com_passado
 from .validacao import dobras_walk_forward, intervalo_wilson, p_acima_de
 
 MODELOS = {
@@ -58,8 +59,7 @@ def avaliar(x: pd.DataFrame, y: pd.Series, referencia: float, dobras: int = 5, e
             real_falso.append(y_embaralhado.iloc[d.teste].to_numpy())
         p, r = np.concatenate(prob), np.concatenate(real)
         certos = (p >= 0.5) == r
-        distancia = np.abs(p - 0.5)
-        selecao = distancia >= np.quantile(distancia, 1 - confianca)
+        selecao = selecionar_com_passado(np.abs(p - 0.5), [len(b) for b in real], confianca)
         certos_conf = certos[selecao]
         acerto_falso = float((((np.concatenate(prob_falso) >= 0.5) == np.concatenate(real_falso))).mean())
         saida.append(ResultadoModelo(

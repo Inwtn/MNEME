@@ -38,23 +38,9 @@ O `rodar.sh` mantém o Mac acordado enquanto o robô roda (Ctrl+C para parar). O
 | `mneme/ciclo.py` | Um ciclo completo do robô |
 | `mneme/banco.py` | Esquema do banco (SQLite agora, Postgres no servidor) |
 
-## Estudo de velas (aprendizado de máquina)
-
-```bash
-uv run python -m mneme.estudo --dias 30 --horizonte 1 5 15
-```
-
-Baixa o histórico de velas de 1 minuto da Binance e mede se modelos conseguem prever a direção do preço nos próximos minutos, sempre em dados que o modelo nunca viu (walk-forward). Compara com o empate de uma aposta de direção (payout de 85% → 54,05% de acerto).
-
-**Resultado em 31/10/2026** (BTC, ETH e SOL, 30 dias, só velas): os modelos acertaram de 50% a 53%, inclusive nos 20% de previsões mais confiantes. Nenhum passou dos 54,05%. Só com velas, não há sinal de direção que pague a aposta; o próximo estudo precisa de mais informação (fluxo dos traders, livro de ofertas, notícias).
-
 ## Base de conhecimento e setups
 
-`conhecimento/` guarda o que foi pesquisado na web (conceitos, setups e estudos, com as fontes). Esses são os documentos do RAG. Cada setup vira uma regra em `mneme/setups/` e é medido em todo o histórico:
-
-```bash
-uv run python -m mneme.setups
-```
+`conhecimento/` guarda o que foi pesquisado na web (conceitos, setups e estudos, com as fontes). Esses são os documentos do RAG. Cada setup vira uma regra em `mneme/setups/` e é medido pelo laboratório, descrito abaixo.
 
 O resultado de cada setup fica em `conhecimento/setups.md`. Na medição de 05/11/2026, com correção por múltiplos testes, nenhum setup passou do empate de 54,05%; os de reversão têm vantagem real sobre 50%.
 

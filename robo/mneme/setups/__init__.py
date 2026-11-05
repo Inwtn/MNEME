@@ -159,7 +159,7 @@ SETUPS: dict[str, Callable[[pd.DataFrame], pd.Series]] = {
 
 
 def medir(v: pd.DataFrame, sinal: pd.Series, minutos: int) -> tuple[int, float, float, float]:
-    """Entrada no fechamento da vela do sinal; ganha se o preço daqui a `minutos` andou a favor. Empates não contam.
+    """Medição antiga e otimista: sobrepõe sinais e entra no fechamento. Para resultados, use `mneme.laboratorio`. Empates não contam.
 
     Devolve (sinais, acerto %, acerto na 1ª metade %, acerto na 2ª metade %).
     """

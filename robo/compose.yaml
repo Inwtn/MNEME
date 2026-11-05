@@ -26,6 +26,37 @@ services:
       retries: 3
       start_period: 120s
 
+  # Notícias, calendário e, com credencial no .env, o X. Texto externo é só dado.
+  inteligencia:
+    <<: *servico
+    command: [".venv/bin/python", "-m", "mneme.inteligencia", "rodar"]
+    mem_limit: 500m
+    cpus: 0.5
+    cpu_shares: 256
+    healthcheck:
+      test: ["CMD", ".venv/bin/python", "-c", "import datetime as d,pathlib as p; t=d.datetime.fromisoformat(p.Path('/dados/mercado/inteligencia.batimento').read_text()); raise SystemExit(d.datetime.now(d.timezone.utc)-t>d.timedelta(minutes=5))"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+  # Grava previsões antes do resultado e não opera. Fica atrás da coleta na disputa por CPU.
+  previsor:
+    <<: *servico
+    command: [".venv/bin/python", "-m", "mneme.previsor", "rodar"]
+    environment:
+      MNEME_DADOS_MERCADO: /dados/mercado
+      MNEME_MODELOS: /dados/modelos
+    mem_limit: 1500m
+    cpus: 1
+    cpu_shares: 256
+    healthcheck:
+      test: ["CMD", ".venv/bin/python", "-c", "import datetime as d,pathlib as p; t=d.datetime.fromisoformat(p.Path('/dados/mercado/previsor.batimento').read_text()); raise SystemExit(d.datetime.now(d.timezone.utc)-t>d.timedelta(minutes=5))"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
+
   # Separado das velas: uma falha aqui não interrompe a coleta principal.
   fluxo:
     <<: *servico

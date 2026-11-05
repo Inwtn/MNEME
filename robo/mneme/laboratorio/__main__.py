@@ -18,10 +18,16 @@ import pandas as pd
 from .. import indicadores as ind
 from ..config import PASTA_DADOS
 from ..dados.armazem import ArmazemVelas
+from ..dados.calendario import FonteCalendario
+from ..dados.eventos import ArmazemEventos
+from ..previsor import PADRAO_REFERENCIA, REFERENCIA
 from ..setups import SETUPS
+from .avaliacao import separar_selado
 from .backtest import CustoSpot, apostas_direcao, medir_direcao, medir_posicao, olha_o_futuro, operacoes_posicao, placebo_direcao
+from .dataset import FAMILIAS, alvos, amostrar, colunas_de, construir
 from .modelos import avaliar, preparar
-from .registro import Registro, impressao_dos_dados
+from .previsao import CLASSIFICADORES, avaliar_selado, meta_rotulo, prever_direcao, prever_regressao, treinar_artefato
+from .registro import Registro, commit_atual, impressao_dos_dados
 from .validacao import empate, holm, prob_sobreajuste, sharpe, sharpe_deflacionado
 
 
@@ -120,6 +126,129 @@ def estudar_modelos(armazem: ArmazemVelas, registro: Registro, pares: list[str],
         print(f"| {l['modelo']} | {l['par']} | {l['horizonte']} | {l['previsoes']} | {_pct(l['acerto'])} | {_pct(l['acerto_confiante'])} | {_pct(l['acerto_rotulo_embaralhado'])} | {l['p_ajustado']:.3f} |")
 
 
+# Daqui em diante é a área selada: nenhuma escolha de atributo, modelo ou corte pode olhar para ela.
+SELADO_DESDE = pd.Timestamp("2026-08-01", tz="UTC")
+CONJUNTOS = {"só preço": ("v_",), "preço + metodologias": ("v_", "m_"), "preço + agressão": ("v_", "f_"), "preço + outro mercado": ("v_", "c_"),
+             "preço + derivativos": ("v_", "d_"), "preço + relógio e eventos": ("v_", "t_", "e_"), "tudo": FAMILIAS}
+
+
+def _base_de_previsao(armazem: ArmazemVelas, par: str, raiz: str) -> tuple[pd.DataFrame, pd.DataFrame, str]:
+    v = armazem.ler(par)
+    referencia = armazem.ler(REFERENCIA.get(par, PADRAO_REFERENCIA))
+    funding = ArmazemEventos(raiz).ler("funding", par)
+    return construir(v, funding, referencia, _fomc(raiz)), v, impressao_dos_dados(v)
+
+
+def _fomc(raiz: str) -> pd.Series:
+    eventos = ArmazemEventos(raiz)
+    if eventos.ler("calendario", "GLOBAL").empty:
+        eventos.gravar("calendario", "GLOBAL", FonteCalendario().fomc())
+    c = eventos.ler("calendario", "GLOBAL")
+    return c.loc[c["nome"] == "Decisão do FOMC", "ocorrido_em"].drop_duplicates()
+
+
+def estudar_previsao(armazem: ArmazemVelas, registro: Registro, raiz: str, pares: list[str], horizontes: list[int], payout: float, pasta: Path) -> None:
+    alvo_empate = empate(payout)
+    direcao, familias, regressao = [], [], []
+    for par in pares:
+        atributos, v, dados = _base_de_previsao(armazem, par, raiz)
+        print(f"{par}: {atributos.shape[1]} atributos", flush=True)
+        for h in horizontes:
+            x, y = amostrar(atributos, alvos(v, h), h)
+            dev, _ = separar_selado(x.index, SELADO_DESDE)
+            x, y = x[dev], y[dev]
+            for r in prever_direcao(x, y["sobe"], alvo_empate):
+                linha = {"par": par, "horizonte": h, **r.como_dict()}
+                direcao.append(linha)
+                registro.anotar("previsao_direcao", r.modelo, {"par": par, "horizonte": h, "conjunto": "tudo"}, dados, linha)
+            print(json.dumps(direcao[-1], ensure_ascii=False, default=float), flush=True)
+            for nome, prefixos in CONJUNTOS.items():
+                if nome == "tudo":
+                    continue
+                r = prever_direcao(x[colunas_de(x, prefixos)], y["sobe"], alvo_empate, {"LightGBM": CLASSIFICADORES["LightGBM"]})[0]
+                linha = {"par": par, "horizonte": h, "conjunto": nome, **r.como_dict()}
+                familias.append(linha)
+                registro.anotar("previsao_familias", "LightGBM", {"par": par, "horizonte": h, "conjunto": nome}, dados, linha)
+            for alvo, base in (("vol_futura", np.log(x["v_volatilidade_60"].replace(0, np.nan))), ("eficiencia", x["v_60min_adx"])):
+                r = prever_regressao(x, y[alvo], base)
+                regressao.append({"par": par, "horizonte": h, "alvo": alvo, **r})
+                registro.anotar("previsao_regressao", alvo, {"par": par, "horizonte": h}, dados, regressao[-1])
+    for linha, ajustado in zip(direcao, holm([l["p_valor"] for l in direcao])):
+        linha["p_ajustado"] = ajustado
+    _salvar(pasta, "previsao_direcao", direcao)
+    _salvar(pasta, "previsao_familias", familias)
+    _salvar(pasta, "previsao_regressao", regressao)
+    print(f"\nEmpate: {_pct(alvo_empate)}. Desenvolvimento até {SELADO_DESDE.date()}; corte dos confiantes só com o passado.")
+    print("| Modelo | Par | Min | Previsões | Acerto | AUC | Confiantes | Brier | Brier calibrado | Erro calibração | Expectativa | p ajustado |\n|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
+    for l in direcao:
+        print(f"| {l['modelo']} | {l['par']} | {l['horizonte']} | {l['previsoes']} | {_pct(l['acerto'])} | {l['auc']:.4f} | {_pct(l['acerto_confiante'])} | {l['brier']:.4f} | {l['brier_calibrado']:.4f} | "
+              f"{l['erro_calibracao_calibrado']:.4f} | {l['metricas_confiantes']['expectativa']:.4f} | {l['p_ajustado']:.3f} |")
+    tabela = pd.DataFrame(familias)
+    resumo = tabela.groupby(["conjunto", "horizonte"])[["acerto", "auc", "acerto_confiante"]].mean().reset_index()
+    print("\nMédia entre os pares, com LightGBM:\n| Dados usados | Min | Acerto | AUC | 20% mais confiantes |\n|---|---:|---:|---:|---:|")
+    for l in resumo.itertuples():
+        print(f"| {l.conjunto} | {l.horizonte} | {_pct(l.acerto)} | {l.auc:.4f} | {_pct(l.acerto_confiante)} |")
+    print("\nVolatilidade e eficiência contra a referência:\n| Par | Min | Alvo | R² modelo | R² referência | Ganho |\n|---|---:|---|---:|---:|---:|")
+    for l in regressao:
+        print(f"| {l['par']} | {l['horizonte']} | {l['alvo']} | {l['r2_modelo']:.3f} | {l['r2_referencia']:.3f} | {l['ganho_sobre_referencia']:.3f} |")
+
+
+def estudar_meta(armazem: ArmazemVelas, registro: Registro, raiz: str, pares: list[str], minutos: int, payout: float, pasta: Path) -> None:
+    """Meta-rótulo: o modelo aprende, com todas as evidências, quando confiar em cada regra de reversão."""
+    referencia = empate(payout)
+    linhas = []
+    familia = "meta_rotulo_corte_passado"
+    for par in pares:
+        atributos, v, dados = _base_de_previsao(armazem, par, raiz)
+        for nome in ("Bollinger + RSI (volta para a banda)", "Reversão após movimento forte de 1 h"):
+            apostas = apostas_direcao(v, SETUPS[nome](v), minutos, payout).set_index("quando")
+            x = atributos.reindex(apostas.index).copy()
+            x["regra_direcao"] = apostas["direcao"]
+            dev, _ = separar_selado(x.index, SELADO_DESDE)
+            r = {"par": par, "setup": nome, "ate": str(SELADO_DESDE.date()), **meta_rotulo(x[dev], apostas["ganhou"][dev], referencia)}
+            linhas.append(r)
+            registro.anotar(familia, nome, {"par": par, "minutos": minutos, "payout": payout}, dados, r)
+    tentativas = registro.tentativas(familia) + registro.tentativas("meta_rotulo")
+    for linha, ajustado in zip(linhas, holm([l["p_valor"] for l in linhas])):
+        linha["p_ajustado"] = ajustado
+        linha["p_por_tentativas"] = min(1.0, linha["p_valor"] * tentativas)
+    _salvar(pasta, "meta", linhas)
+    print(f"\nEmpate: {_pct(referencia)}. {minutos} min. Desenvolvimento até {SELADO_DESDE.date()}. Corte só com o passado. Tentativas nessa pergunta: {tentativas}.")
+    print("| Regra | Par | Sinais | Acerto todos | Selecionados | Acerto selecionados | Lim. inf. | AUC | Expectativa | Fator lucro | Pior queda | Sharpe | Sortino | p Holm | p tentativas |\n|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
+    for l in linhas:
+        m = l["metricas"]
+        print(f"| {l['setup']} | {l['par']} | {l['sinais']} | {_pct(l['acerto_todos'])} | {l['selecionados']} | {_pct(l['acerto_selecionados'])} | {_pct(l['limite_inferior'])} | {l['auc']:.4f} | "
+              f"{m['expectativa']:.4f} | {m['fator_de_lucro']:.3f} | {m['pior_queda']:.1f} | {m['sharpe']:.4f} | {m['sortino']:.4f} | {l['p_ajustado']:.3f} | {l['p_por_tentativas']:.3f} |")
+        print("  regimes: " + "; ".join(f"{g} n={d['operacoes']} ac={_pct(d['acerto'])}" for g, d in sorted(l["por_regime"].items())))
+
+
+def abrir_selado(armazem: ArmazemVelas, registro: Registro, raiz: str, par: str, setup: str, minutos: int, payout: float, pasta: Path) -> None:
+    """Teste final de uma hipótese já escolhida. Cada hipótese só pode abrir a área selada uma vez, e a abertura fica registrada."""
+    familia = "selado"
+    parametros = {"par": par, "setup": setup, "minutos": minutos, "payout": payout}
+    if any(l["parametros"] == parametros for l in registro.todos(familia)):
+        raise SystemExit("Esta hipótese já abriu a área selada. O resultado vale como está: repetir seria usar o teste para escolher.")
+    atributos, v, dados = _base_de_previsao(armazem, par, raiz)
+    apostas = apostas_direcao(v, SETUPS[setup](v), minutos, payout).set_index("quando")
+    x = atributos.reindex(apostas.index).copy()
+    x["regra_direcao"] = apostas["direcao"]
+    dev, selado = separar_selado(x.index, SELADO_DESDE)
+    y = apostas["ganhou"].astype(int)
+    r = {"par": par, "setup": setup, "desde": str(SELADO_DESDE.date()), **avaliar_selado(x[dev], y[dev], x[selado], y[selado], empate(payout))}
+    registro.anotar(familia, setup, parametros, dados, r)
+    _salvar(pasta, f"selado_{par}", [r])
+    print(json.dumps(r, ensure_ascii=False, indent=1, default=float))
+
+
+def treinar_finais(armazem: ArmazemVelas, registro: Registro, raiz: str, pares: list[str], horizontes: list[int], pasta_modelos: Path) -> None:
+    for par in pares:
+        atributos, v, dados = _base_de_previsao(armazem, par, raiz)
+        for h in horizontes:
+            x, y = amostrar(atributos, alvos(v, h), h)
+            a = treinar_artefato(pasta_modelos, par, h, x, y["sobe"], dados, commit_atual())
+            print(json.dumps({"id": a.manifesto["id"], **{k: a.manifesto["metricas_fora_da_amostra"][k] for k in ("acerto", "auc", "erro_calibracao")}}, ensure_ascii=False), flush=True)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="mneme.laboratorio")
     parser.add_argument("--pares", default=os.getenv("MNEME_PARES_VELAS", "BTCUSDT,ETHUSDT,SOLUSDT"))
@@ -138,6 +267,20 @@ def main() -> None:
     m = sub.add_parser("modelos")
     m.add_argument("--horizontes", type=int, nargs="+", default=[5, 15])
     m.add_argument("--payout", type=float, default=0.85)
+    pr = sub.add_parser("prever")
+    pr.add_argument("--horizontes", type=int, nargs="+", default=[5, 15, 60])
+    pr.add_argument("--payout", type=float, default=0.85)
+    me = sub.add_parser("meta")
+    me.add_argument("--minutos", type=int, default=15)
+    me.add_argument("--payout", type=float, default=0.85)
+    se = sub.add_parser("selado")
+    se.add_argument("par")
+    se.add_argument("setup", choices=list(SETUPS))
+    se.add_argument("--minutos", type=int, default=15)
+    se.add_argument("--payout", type=float, default=0.85)
+    tr = sub.add_parser("treinar")
+    tr.add_argument("--horizontes", type=int, nargs="+", default=[15, 60])
+    tr.add_argument("--modelos", default=os.getenv("MNEME_MODELOS", str(PASTA_DADOS / "modelos")))
     args = parser.parse_args()
     pares = [x.strip().upper() for x in args.pares.split(",") if x.strip()]
     armazem = ArmazemVelas(args.raiz)
@@ -147,6 +290,14 @@ def main() -> None:
         estudar_setups(armazem, registro, pares, args.minutos, args.payout, pasta)
     elif args.comando == "spot":
         estudar_spot(armazem, registro, pares, args.alvo, args.stop, args.velas, CustoSpot(args.taxa, args.slippage), pasta)
+    elif args.comando == "prever":
+        estudar_previsao(armazem, registro, args.raiz, pares, args.horizontes, args.payout, pasta)
+    elif args.comando == "meta":
+        estudar_meta(armazem, registro, args.raiz, pares, args.minutos, args.payout, pasta)
+    elif args.comando == "selado":
+        abrir_selado(armazem, registro, args.raiz, args.par, args.setup, args.minutos, args.payout, pasta)
+    elif args.comando == "treinar":
+        treinar_finais(armazem, registro, args.raiz, pares, args.horizontes, Path(args.modelos))
     else:
         estudar_modelos(armazem, registro, pares, args.horizontes, args.payout, pasta)
 

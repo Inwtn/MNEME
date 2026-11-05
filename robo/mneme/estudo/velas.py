@@ -1,20 +1,11 @@
-"""Estudo 1: dá para prever a direção do preço nos próximos minutos só com velas?
-
-Mede o acerto em dados que o modelo nunca viu (walk-forward: treina no passado, testa no futuro, avança),
-e compara com o empate de uma aposta de direção que paga `payout` (85% → precisa de 54,05% de acerto).
-"""
+"""Atributos do primeiro estudo de velas. A medição fica em `mneme.laboratorio`, sem vazamento entre treino e teste."""
 
 from __future__ import annotations
 
 import sqlite3
-from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import HistGradientBoostingClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 
 
 def carregar(con: sqlite3.Connection, par: str) -> pd.DataFrame:
@@ -46,48 +37,6 @@ def montar(velas: pd.DataFrame, horizonte: int) -> tuple[pd.DataFrame, pd.Series
     y = (futuro > 0).astype(int)
     validas = x.notna().all(axis=1) & futuro.notna() & (futuro != 0)
     return x[validas], y[validas]
-
-
-@dataclass
-class Resultado:
-    modelo: str
-    acerto_pct: float
-    previsoes: int
-    acerto_confiante_pct: float | None
-    previsoes_confiantes: int
-
-
-def avaliar(x: pd.DataFrame, y: pd.Series, dobras: int = 5, confianca: float = 0.2) -> list[Resultado]:
-    """Walk-forward em `dobras` blocos de teste. `confianca` = fração das previsões mais confiantes a medir à parte."""
-    modelos = {
-        "regressão logística": lambda: make_pipeline(StandardScaler(), LogisticRegression(max_iter=500)),
-        "árvores (gradient boosting)": lambda: HistGradientBoostingClassifier(max_iter=200, learning_rate=0.05, max_leaf_nodes=15),
-    }
-    tamanho = len(x) // (dobras + 1)
-    acumulado: dict[str, list[tuple[np.ndarray, np.ndarray]]] = {nome: [] for nome in [*modelos, "sempre sobe", "repete o último minuto"]}
-    for dobra in range(1, dobras + 1):
-        treino, teste = slice(0, tamanho * dobra), slice(tamanho * dobra, tamanho * (dobra + 1))
-        y_teste = y.iloc[teste].to_numpy()
-        for nome, criar in modelos.items():
-            modelo = criar().fit(x.iloc[treino], y.iloc[treino])
-            acumulado[nome].append((modelo.predict_proba(x.iloc[teste])[:, 1], y_teste))
-        acumulado["sempre sobe"].append((np.ones(len(y_teste)), y_teste))
-        acumulado["repete o último minuto"].append(((x["retorno_1"].iloc[teste] > 0).astype(float).to_numpy(), y_teste))
-    resultados = []
-    for nome, partes in acumulado.items():
-        prob = np.concatenate([p for p, _ in partes])
-        real = np.concatenate([r for _, r in partes])
-        acerto = ((prob >= 0.5) == real).mean() * 100
-        confiante = None
-        quantos = 0
-        if nome in modelos:
-            certeza = np.abs(prob - 0.5)
-            corte = np.quantile(certeza, 1 - confianca)
-            escolhidas = certeza >= corte
-            quantos = int(escolhidas.sum())
-            confiante = ((prob[escolhidas] >= 0.5) == real[escolhidas]).mean() * 100
-        resultados.append(Resultado(nome, acerto, len(real), confiante, quantos))
-    return resultados
 
 
 def empate(payout: float) -> float:

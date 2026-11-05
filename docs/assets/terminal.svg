@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="326" viewBox="0 0 1200 326" role="img" aria-label="Terminal: leitura de mercado e testes do MNEME">
+  <style>
+    text { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 15px; }
+    .p { fill: #0ecb81; } .t { fill: #eaecef; } .m { fill: #848e9c; } .ok { fill: #0ecb81; }
+    .l { opacity: 0; animation: 14s steps(1) infinite; }
+    .l1 { animation-name: al1; } @keyframes al1 { 0% { opacity: 1; } 96% { opacity: 0; } }
+    .l2 { animation-name: al2; } @keyframes al2 { 0% { opacity: 0; } 14% { opacity: 1; } 96% { opacity: 0; } }
+    .l3 { animation-name: al3; } @keyframes al3 { 0% { opacity: 0; } 20% { opacity: 1; } 96% { opacity: 0; } }
+    .l4 { animation-name: al4; } @keyframes al4 { 0% { opacity: 0; } 40% { opacity: 1; } 96% { opacity: 0; } }
+    .l5 { animation-name: al5; } @keyframes al5 { 0% { opacity: 0; } 46% { opacity: 1; } 96% { opacity: 0; } }
+    .l6 { animation-name: al6; } @keyframes al6 { 0% { opacity: 0; } 56% { opacity: 1; } 96% { opacity: 0; } }
+    .l7 { animation-name: al7; } @keyframes al7 { 0% { opacity: 0; } 76% { opacity: 1; } 96% { opacity: 0; } }
+    .type1 { animation: type1 14s steps(28) infinite; } @keyframes type1 { 0% { width: 0; } 10%, 100% { width: 270px; } }
+    .type2 { animation: type2 14s steps(47) infinite; } @keyframes type2 { 0%, 20% { width: 0; } 36%, 100% { width: 450px; } }
+    .type3 { animation: type3 14s steps(16) infinite; } @keyframes type3 { 0%, 56% { width: 0; } 68%, 100% { width: 160px; } }
+    .cur { animation: cur 1s steps(1) infinite; } @keyframes cur { 50% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .l { animation: none; opacity: 1; } .type1, .type2, .type3, .cur { animation: none; } }
+  </style>
+  <defs>
+    <clipPath id="c1"><rect class="type1" x="62" y="76" width="270" height="24"/></clipPath>
+    <clipPath id="c2"><rect class="type2" x="62" y="152" width="450" height="24"/></clipPath>
+    <clipPath id="c3"><rect class="type3" x="62" y="252" width="160" height="24"/></clipPath>
+  </defs>
+  <rect width="1200" height="326" rx="10" fill="#0b0e11"/>
+  <rect x=".5" y=".5" width="1199" height="325" rx="10" fill="none" stroke="#2b3139"/>
+  <circle cx="30" cy="26" r="6" fill="#f6465d"/><circle cx="50" cy="26" r="6" fill="#f0b90b"/><circle cx="70" cy="26" r="6" fill="#0ecb81"/>
+  <text x="600" y="31" text-anchor="middle" class="m" style="font-size:13px">MNEME</text>
+  <line x1="0" y1="50" x2="1200" y2="50" stroke="#2b3139"/>
+  <g class="l l1"><text x="40" y="94" class="p">$</text><text x="62" y="94" class="t" clip-path="url(#c1)">python -m mneme.dados resumo</text></g>
+  <text class="l l2 m" x="40" y="122">{"par": "BTCUSDT", "velas": 1057995, "lacunas": 0}</text>
+  <g class="l l3"><text x="40" y="170" class="p">$</text><text x="62" y="170" class="t" clip-path="url(#c2)">python -m mneme.dados ler BTCUSDT --tempo 15min</text></g>
+  <text class="l l4" x="40" y="198"><tspan class="m">tendência</tspan><tspan class="t" dx="10">baixa</tspan><tspan class="m" dx="24">estrutura</tspan><tspan class="t" dx="10">topos e fundos mais baixos</tspan></text>
+  <text class="l l5" x="40" y="222"><tspan class="m">RSI 14</tspan><tspan class="t" dx="10">21,7</tspan><tspan class="m" dx="24">ADX</tspan><tspan class="t" dx="10">52,5</tspan><tspan class="m" dx="24">suporte</tspan><tspan class="t" dx="10">75.568</tspan><tspan class="m" dx="24">resistência</tspan><tspan class="t" dx="10">77.006</tspan></text>
+  <g class="l l6"><text x="40" y="270" class="p">$</text><text x="62" y="270" class="t" clip-path="url(#c3)">uv run pytest -q</text></g>
+  <text class="l l7" x="40" y="298"><tspan class="ok">✔</tspan><tspan class="t" dx="10">66 passed in 4.01s</tspan><tspan class="m" dx="10">indicadores conferidos com o TA-Lib; nada olha o futuro</tspan><tspan class="cur t" dx="10">▌</tspan></text>
+</svg>

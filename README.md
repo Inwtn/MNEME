@@ -30,6 +30,10 @@ Nenhuma técnica sozinha resolve o problema. Cada camada faz o que faz melhor e 
 
 ## Arquitetura
 
+<p align="center">
+  <img src="docs/assets/fluxo.svg" alt="Animação: uma decisão percorre dados, atributos, modelos, decisão, risco e sinal; outra é recusada pelo Risk Engine por falta de evidência." width="100%">
+</p>
+
 ```mermaid
 flowchart TB
     subgraph Fontes
@@ -148,6 +152,10 @@ docs/architecture/     Arquitetura, decisões e medições
 ```
 
 ## Rodando
+
+<p align="center">
+  <img src="docs/assets/terminal.svg" alt="Animação de terminal: resumo das velas, leitura de mercado do BTC e testes passando." width="100%">
+</p>
 
 ```bash
 cd robo

@@ -25,7 +25,9 @@ from .dados.armazem import ArmazemVelas, agora_utc
 from .dados.binance_fluxo import FonteFluxo
 from .dados.calendario import FonteCalendario
 from .dados.eventos import ArmazemEventos
+from .dados.resultados_macro import divulgados_e_agenda
 from .laboratorio.dataset import construir
+from .laboratorio.estudo_eventos import com_macro
 from .laboratorio.previsao import Artefato, carregar_artefato
 from .laboratorio.validacao import intervalo_wilson
 
@@ -114,7 +116,7 @@ class Previsor:
         referencia = self.velas.ler(REFERENCIA.get(par, PADRAO_REFERENCIA), inicio=inicio, como_de=agora)
         # O funding precisa de mais histórico que as velas: as médias do treino usam 90 pagamentos.
         funding = self.eventos.ler("funding", par, inicio=agora - timedelta(days=60), como_de=agora)
-        return construir(v, funding, referencia, self.eventos_altos())
+        return com_macro(construir(v, funding, referencia, self.eventos_altos()), divulgados_e_agenda(self.eventos.ler("resultados_macro", "GLOBAL"), agora))
 
 
 def placar(raiz: Path | str, pares: list[str]) -> list[dict]:

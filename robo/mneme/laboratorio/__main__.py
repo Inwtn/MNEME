@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import numpy as np
@@ -17,9 +18,11 @@ import pandas as pd
 
 from .. import indicadores as ind
 from ..config import PASTA_DADOS
-from ..dados.armazem import ArmazemVelas
+from ..dados.armazem import ArmazemVelas, agora_utc
 from ..dados.calendario import FonteCalendario
 from ..dados.eventos import ArmazemEventos
+from ..dados.resultados_macro import FonteResultados, surpresas
+from .estudo_eventos import com_macro, reacoes, resumir, volatilidade_em_torno
 from ..previsor import PADRAO_REFERENCIA, REFERENCIA
 from ..setups import SETUPS, NOME_FIMATHE, setups_configurados
 from .avaliacao import separar_selado
@@ -159,8 +162,8 @@ CONJUNTOS = {"só preço": ("v_",), "preço + metodologias": ("v_", "m_"), "pre�
 def _base_de_previsao(armazem: ArmazemVelas, par: str, raiz: str) -> tuple[pd.DataFrame, pd.DataFrame, str]:
     v = armazem.ler(par)
     referencia = armazem.ler(REFERENCIA.get(par, PADRAO_REFERENCIA))
-    funding = ArmazemEventos(raiz).ler("funding", par)
-    return construir(v, funding, referencia, _fomc(raiz)), v, impressao_dos_dados(v)
+    eventos = ArmazemEventos(raiz)
+    return com_macro(construir(v, eventos.ler("funding", par), referencia, _fomc(raiz)), eventos.ler("resultados_macro", "GLOBAL")), v, impressao_dos_dados(v)
 
 
 def _fomc(raiz: str) -> pd.Series:
@@ -264,6 +267,38 @@ def abrir_selado(armazem: ArmazemVelas, registro: Registro, raiz: str, par: str,
     print(json.dumps(r, ensure_ascii=False, indent=1, default=float))
 
 
+def importar_macro(raiz: str, meses: int) -> None:
+    """Histórico de resultados e consenso, um dia por chamada e com pausa. Sem hora de chegada: vale o horário do evento."""
+    agora = agora_utc().date()
+    linhas = FonteResultados().periodo(agora - timedelta(days=meses * 31), agora - timedelta(days=1))
+    eventos = ArmazemEventos(raiz)
+    eventos.gravar("resultados_macro", "GLOBAL", linhas)
+    eventos.compactar(agora_utc())
+    print(json.dumps({"eventos": len(linhas), "com_resultado_e_consenso": sum(l["resultado"] is not None and l["consenso"] is not None for l in linhas), "chave": sum(l["classe"] is not None for l in linhas)}), flush=True)
+
+
+def estudar_macro(armazem: ArmazemVelas, registro: Registro, raiz: str, pares: list[str], pasta: Path) -> None:
+    """Reação à surpresa só na área de desenvolvimento. Mostra também as combinações sem resultado: nada é escondido."""
+    tabela = surpresas(ArmazemEventos(raiz).ler("resultados_macro", "GLOBAL"))
+    tabela = tabela[tabela["ocorrido_em"] < SELADO_DESDE]
+    print(f"Eventos com resultado e consenso, até {SELADO_DESDE.date()}: {len(tabela)}; com surpresa padronizada: {int(tabela['surpresa_z'].notna().sum())}.")
+    print(tabela["classe"].value_counts().to_dict())
+    saida = []
+    for par in pares:
+        v = armazem.ler(par)
+        dados = impressao_dos_dados(v)
+        r = reacoes(tabela[tabela["surpresa_z"].notna()].drop_duplicates("ocorrido_em"), v)
+        resumo = resumir(r)
+        volatilidade = volatilidade_em_torno(tabela.drop_duplicates("ocorrido_em"), v)
+        print(f"\n{par}: movimento nos 15 min após o evento {volatilidade['movimento_apos_bps']:.0f} bps contra {volatilidade['movimento_sem_evento_bps']:.0f} bps no mesmo horário sem evento (razão {volatilidade['razao']:.2f}).")
+        print("| Evento | Min | Eventos | Correlação | p ajustado | Mesmo sinal | Reação média (bps) | Fortes | Retorno alinhado fortes (bps) |\n|---|---:|---:|---:|---:|---:|---:|---:|---:|")
+        for l in resumo.itertuples():
+            print(f"| {l.classe} | {l.horizonte} | {l.eventos} | {l.correlacao:+.3f} | {l.p_ajustado:.3f} | {_pct(l.mesmo_sinal)} | {l.reacao_media_bps:.0f} | {l.fortes} | {l.retorno_fortes_alinhado_bps:+.1f} |")
+            registro.anotar("reacao_macro", l.classe, {"par": par, "horizonte": l.horizonte}, dados, l._asdict())
+        saida.append({"par": par, "volatilidade": volatilidade, "resumo": resumo.to_dict("records")})
+    _salvar(pasta, "macro", saida)
+
+
 def treinar_finais(armazem: ArmazemVelas, registro: Registro, raiz: str, pares: list[str], horizontes: list[int], pasta_modelos: Path) -> None:
     for par in pares:
         atributos, v, dados = _base_de_previsao(armazem, par, raiz)
@@ -303,6 +338,8 @@ def main() -> None:
     me = sub.add_parser("meta")
     me.add_argument("--minutos", type=int, default=15)
     me.add_argument("--payout", type=float, default=0.85)
+    sub.add_parser("macro-importar").add_argument("--meses", type=int, default=24)
+    sub.add_parser("macro")
     se = sub.add_parser("selado")
     se.add_argument("par")
     se.add_argument("setup", choices=list(SETUPS))
@@ -339,6 +376,10 @@ def main() -> None:
         estudar_previsao(armazem, registro, args.raiz, pares, args.horizontes, args.payout, pasta)
     elif args.comando == "meta":
         estudar_meta(armazem, registro, args.raiz, pares, args.minutos, args.payout, pasta)
+    elif args.comando == "macro-importar":
+        importar_macro(args.raiz, args.meses)
+    elif args.comando == "macro":
+        estudar_macro(armazem, registro, args.raiz, pares, pasta)
     elif args.comando == "selado":
         abrir_selado(armazem, registro, args.raiz, args.par, args.setup, args.minutos, args.payout, pasta)
     elif args.comando == "treinar":

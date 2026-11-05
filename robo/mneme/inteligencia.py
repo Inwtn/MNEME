@@ -22,6 +22,7 @@ from .config import PASTA_DADOS, RAIZ
 from .dados.armazem import agora_utc
 from .dados.calendario import FonteCalendario
 from .dados.eventos import ArmazemEventos
+from .dados.resultados_macro import ResultadosAoVivo
 from .noticias import ATIVOS, ColetorNoticias, agrupar_eventos, medidas_de_atencao
 from .social import CONSULTAS, FonteX, GastoExcedido, Limites
 
@@ -30,11 +31,14 @@ log = logging.getLogger("mneme.inteligencia")
 MINUTOS_NOTICIAS = 5
 MINUTOS_CALENDARIO = 60
 MINUTOS_SOCIAL = 30
+MINUTOS_RESULTADOS = 5
 
 
 class Inteligencia:
-    def __init__(self, raiz: Path | str, noticias: ColetorNoticias | None = None, calendario: FonteCalendario | None = None, x: FonteX | None = None, relogio=agora_utc):
+    def __init__(self, raiz: Path | str, noticias: ColetorNoticias | None = None, calendario: FonteCalendario | None = None, x: FonteX | None = None, relogio=agora_utc,
+                 resultados: ResultadosAoVivo | None = None):
         self.eventos = ArmazemEventos(raiz)
+        self.resultados = resultados
         self.noticias, self.calendario, self.x, self.relogio = noticias or ColetorNoticias(), calendario or FonteCalendario(), x, relogio
         self.batimento = Path(raiz) / "inteligencia.batimento"
         self.ultimos: dict[str, datetime] = {}
@@ -65,6 +69,13 @@ class Inteligencia:
                     self.eventos.gravar("calendario", "GLOBAL", ler())
                 except (httpx.HTTPError, ValueError) as erro:
                     log.warning("Calendário %s indisponível: %s", nome, erro.__class__.__name__)
+        if self.resultados is not None and self._na_hora("resultados", MINUTOS_RESULTADOS, agora):
+            try:
+                novos = self.resultados.coletar(agora)
+                self.eventos.gravar("resultados_macro", "GLOBAL", novos)
+                resultado["resultados_macro_novos"] = len(novos)
+            except (httpx.HTTPError, ValueError) as erro:
+                log.warning("Resultados econômicos indisponíveis: %s", erro.__class__.__name__)
         if self.x is not None and self.x.ligada and self._na_hora("social", MINUTOS_SOCIAL, agora):
             resultado["posts_novos"] = self._coletar_social(agora)
         return resultado
@@ -123,7 +134,7 @@ def main() -> None:
     load_dotenv(RAIZ / ".env")
     x = FonteX(os.getenv("X_BEARER_TOKEN", "").strip(), Limites(float(os.getenv("X_TETO_MENSAL_USD", "0") or 0)), Path(args.raiz) / "fluxo" / "x_gasto.json")
     log.info("Inteligência externa rodando. X %s.", "ligado" if x.ligada else "desligado: falta credencial e teto de gasto")
-    servico = Inteligencia(args.raiz, x=x)
+    servico = Inteligencia(args.raiz, x=x, resultados=ResultadosAoVivo())
     parar = {"sim": False}
     for sinal in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sinal, lambda *_: parar.update(sim=True))

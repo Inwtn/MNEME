@@ -70,7 +70,7 @@ sudo adduser --system --group --home /opt/mneme --shell /bin/bash mneme
 sudo usermod -aG docker mneme
 sudo -iu mneme
 git clone https://github.com/th1agx/MNEME.git && cd MNEME
-cp .env.example .env && chmod 600 .env && nano .env
+touch .env && chmod 600 .env && nano .env
 mkdir -p data
 exit
 sudo chown 1000:1000 /opt/mneme/MNEME/data     # usuário do contêiner

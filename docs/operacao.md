@@ -48,7 +48,7 @@ Esse ranking mede a cÃ³pia individual dos sinais e nÃ£o Ã© aprendizado aut
 | Simulado | Opera numa carteira de mentira com preços reais, para medir a estratégia. |
 | Dinheiro real | Compra e vende sozinho numa carteira Solana dedicada, dentro dos limites. |
 
-Para liberar dinheiro real: crie uma carteira Solana nova só para o bot, coloque pouco saldo e preencha `LIVE_TRADING=on` e `SOLANA_PRIVATE_KEY` no `.env` (veja `.env.example`).
+Para liberar dinheiro real: crie uma carteira Solana nova só para o bot, coloque pouco saldo e preencha `LIVE_TRADING=on` e `SOLANA_PRIVATE_KEY` no `.env` (veja `.env`).
 
 ## Como o bot decide
 

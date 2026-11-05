@@ -181,7 +181,7 @@ Para coletar em tempo real:
 docker compose up -d --build
 ```
 
-Chaves e endereços privados ficam no `.env`, a partir de `.env.example`, e nunca entram no Git.
+Chaves e endereços privados ficam no `.env`, que nunca entra no Git.
 
 ## Documentação
 

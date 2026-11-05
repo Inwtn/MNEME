@@ -20,7 +20,7 @@ curl -fsSL https://get.docker.com | sh
 ```bash
 git clone https://github.com/th1agx/MNEME.git mneme
 cd mneme
-cp .env.example .env
+touch .env
 nano .env
 ```
 

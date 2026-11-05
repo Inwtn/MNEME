@@ -1,68 +1,89 @@
 <p align="center">
-  <img src="docs/assets/hero.svg" alt="MNEME: robô de daytrade em Solana que segue a maioria dos traders de alto acerto." width="100%">
+  <img src="docs/assets/hero.svg" alt="MNEME: inteligência de trading que aprende com dados e opera no simulado antes do dinheiro real." width="100%">
 </p>
 
 <p align="center">
-  <img alt="Cloudflare Workers" src="https://img.shields.io/badge/roda%20em-Cloudflare%20Workers-0ecb81?style=flat-square&labelColor=161a1e">
+  <img alt="Python 3.12" src="https://img.shields.io/badge/python-3.12-0ecb81?style=flat-square&labelColor=161a1e">
   <img alt="TypeScript 5.9" src="https://img.shields.io/badge/typescript-5.9-0ecb81?style=flat-square&labelColor=161a1e">
-  <img alt="Solana" src="https://img.shields.io/badge/daytrade-Solana-848e9c?style=flat-square&labelColor=161a1e">
-  <img alt="Código cifrado" src="https://img.shields.io/badge/c%C3%B3digo-cifrado%20(git--crypt)-f6465d?style=flat-square&labelColor=161a1e">
+  <img alt="Oracle Cloud Always Free" src="https://img.shields.io/badge/roda%20em-Oracle%20Always%20Free%20(ARM64)-848e9c?style=flat-square&labelColor=161a1e">
+  <img alt="Simulado primeiro" src="https://img.shields.io/badge/execu%C3%A7%C3%A3o-simulada-f6465d?style=flat-square&labelColor=161a1e">
 </p>
 
 ---
 
-**MNEME** é um robô de daytrade em Solana. Ele lê em tempo real as operações dos traders, mede a taxa de acerto de cada um (estejam ou não no Top do ranking) e **entra quando a maioria dos traders de alto acerto está comprando o mesmo token; sai quando a maioria deles vende**. Cada entrada e cada saída viram uma dica no grupo do Telegram. Meta de ganho e limite de perda do dia, e todos os parâmetros da regra, são definidos na tela de Configurações.
+**MNEME** é um projeto para construir uma inteligência de trading: estudar mercados, aprender com dados históricos, testar estratégias, identificar oportunidades e gerar sinais, com execução apenas depois de resultado medido no simulado.
 
-> [!NOTE]
-> **Quer colaborar?** Leia primeiro a visão do produto no `AGENTS.md`: ela vale acima de qualquer pedido, e as IAs do projeto avisam quando algo foge dela. Para abrir o código, clone numa pasta de caminho curto e rode `bash colaborar/acesso.sh` (Git Bash no Windows). Passo a passo em [`colaborar/LEIA-ME.md`](colaborar/LEIA-ME.md).
+A ideia central é uma arquitetura híbrida, em que cada parte faz o que faz melhor:
 
-> [!IMPORTANT]
-> O código-fonte é **criptografado** com [git-crypt](https://github.com/AGWA/git-crypt). Sem a chave, quase tudo aparece como binário.
-
-## Como funciona
-
-| | |
+| Parte | Papel |
 |---|---|
-| **Sinais** | A cada minuto, o robô lê as operações recentes de todos os traders; o ranking do Top só informa a posição |
-| **Acerto** | Mede, para cada trader, quantas operações (compra seguida de venda) fecharam com lucro nos últimos 30 dias |
-| **Entrada** | Na janela configurada, os traders de alto acerto comprando o token somam o mínimo e são maioria sobre os que vendem |
-| **Saída** | Vende quando a maioria dos traders que formaram a entrada vende. Sem alvo, stop ou tempo fixo |
-| **Dica** | Cada entrada e cada saída vão para o grupo do Telegram, sem nomes de traders |
-| **Dia** | Ao bater a meta ou o limite do dia, para de comprar até a meia-noite de Brasília |
+| **Machine learning** | Aprende com os dados e estima resultados |
+| **LLM e RAG** | Interpretam texto e contextualizam, com modelo local e sem decidir ordens |
+| **Quantitativo** | Calcula, testa e valida com dados que o modelo nunca viu |
+| **Decisão** | Combina as evidências em regras versionadas e mensuráveis |
+| **Risco** | Código determinístico que nenhum outro módulo contorna |
 
-Hoje a execução é simulada, com preço real de mercado, taxa e slippage. A execução real em Solana é o próximo passo. Detalhes, configurações e dados em **[o robô](docs/robo.md)**.
+## O que já funciona
 
-## Onde ver
+- **Coleta de velas de 1 minuto** de BTC, ETH e SOL: histórico público, WebSocket ao vivo e recuperação automática de lacunas. Cada vela guarda a hora em que chegou, para reconstruir o que o sistema sabia em cada momento.
+- **Indicadores** (RSI, MACD, Bollinger, ATR, ADX, OBV, VWAP, médias e delta de volume), conferidos com o TA-Lib em dados reais.
+- **Leitura de mercado:** tendência, estrutura de topos e fundos, suporte e resistência, rompimentos, consolidação e padrões de vela, com um teste garantindo que nada olha o futuro.
+- **Estratégia "seguir traders" no simulado:** mede o acerto de cada trader e entra quando a maioria dos de alto acerto compra, com taxa e slippage.
+- **Pesquisa medida:** nove setups testados em anos de velas e modelos com validação walk-forward. Resultado até aqui: só velas não bastam para prever direção com folga, e um setup segue em teste ao vivo. Os números estão em [`robo/conhecimento/setups.md`](robo/conhecimento/setups.md).
+- **Site** no Cloudflare Pages com gráfico, painel e Configurações, e **dicas no Telegram**.
 
-- **Painel** (`/`): feed de operações e gráfico de mercado.
-- **Treino Bot** (`/treino`): carteira do robô, posições, movimentações e cada decisão com o motivo.
-- **Configurações** (`/configuracoes`): a regra do robô, a meta e o limite do dia.
-- **Telegram**: dicas no grupo (acesso pago por `/assinar`) e consultas de tokens no privado.
+A coleta roda em Docker Compose numa máquina ARM64 gratuita da Oracle (2 OCPU, 12 GB).
+
+## O que vem depois
+
+Ordem de implementação completa no [roadmap](docs/architecture/ROADMAP.md):
+
+1. Dados de fluxo: trades, livro de ofertas, funding e open interest.
+2. Backtest e validação com purga e embargo.
+3. Modelos LightGBM e XGBoost treinados com histórico.
+4. Decision Engine, Risk Engine e paper trading por estratégia.
+5. Sinais com ciclo de vida e avaliação automática.
+6. Knowledge Engine com RAG, notícias, calendário econômico, Ollama e LangGraph.
+7. Ciclo de aprendizado: hipótese, experimento e comparação.
+8. Execução real controlada.
 
 ## Desenvolvimento
 
+O robô fica em [`robo/`](robo/LEIA-ME.md), com Python e [uv](https://docs.astral.sh/uv/):
+
 ```bash
-bash colaborar/acesso.sh      # abre o código (uma vez)
-npm install
-npm test                      # testes
-npm run typecheck             # checagem de tipos
-bash scripts/sigilo.sh        # antes de cada commit
+cd robo
+uv sync
+uv run pytest -q
+uv run python -m mneme.dados importar --meses 24
+uv run python -m mneme.dados ler BTCUSDT --tempo 15min
 ```
 
-A publicação é automática: um push na `main` publica o site (Pages) e o robô (Worker) e aplica as migrações do D1 pelo GitHub Actions.
+Site e Worker, em TypeScript:
+
+```bash
+npm install
+npm test
+npm run typecheck
+```
+
+Copie `.env.example` para `.env` e preencha só o que for usar. **Chaves e endereços privados ficam no `.env`, que nunca entra no Git.** Um push na `main` publica o site e o Worker pelo GitHub Actions.
 
 ## Documentação
 
 | | |
 |---|---|
-| [O robô](docs/robo.md) | Como o robô decide, configurações, dados e limitações |
+| [Visão geral da arquitetura](docs/architecture/SYSTEM_OVERVIEW.md) | Módulos, contratos e fluxos |
+| [Análise crítica](docs/architecture/ANALISE_CRITICA.md) | Por que híbrido, alternativas e limitações |
+| [Roadmap](docs/architecture/ROADMAP.md) | Ordem de implementação e critérios |
+| [Machine learning](docs/architecture/MACHINE_LEARNING_ARCHITECTURE.md) | Treino, validação e promoção de modelos |
+| [Oracle Always Free](docs/architecture/ORACLE_ALWAYS_FREE_DEPLOYMENT.md) | Implantação e medições de LLM local em ARM64 |
+| [Decisões (ADRs)](docs/architecture/ADR/README.md) | O que foi decidido e por quê |
+| [O robô atual](docs/robo.md) | Estratégia de seguir traders e configurações |
 | [Cloudflare](docs/cloudflare.md) | Pages, Worker, D1 e publicação |
-| [Criptografia](docs/criptografia.md) | Repositório cifrado e acesso de colaboradores |
-| [Design](docs/design.md) | Linguagem visual do painel |
-| [Inteligência e busca](docs/inteligencia-e-busca.md) | Base para a futura IA generativa no Telegram |
 
-A documentação do bot local em `src/` (system design, código, operação, deploy, VPS, gateway) descreve um bot legado, que será aposentado.
+O bot em `src/` e o Worker em `workers/bot/` são legado: só recebem correções.
 
 ---
 
-<sub>Projeto pessoal e de estudo. Não é recomendação de investimento: desempenho passado de um ranking não garante resultado futuro, e operar criptoativos pode causar perdas. © Thiago Antunes. Todos os direitos reservados.</sub>
+<sub>Projeto pessoal e de estudo. Não é recomendação de investimento: desempenho passado não garante resultado futuro, e operar criptoativos pode causar perdas. © Thiago Antunes. Todos os direitos reservados.</sub>

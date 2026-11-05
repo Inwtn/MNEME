@@ -13,7 +13,7 @@ import pandas as pd
 
 from .setups import bollinger_rsi
 
-# Só o setup que passou do empate no histórico (robo/conhecimento/setups.md).
+# Candidato em observação; não passou da correção por múltiplos testes (robo/conhecimento/setups.md).
 AO_VIVO = {"Bollinger + RSI (volta para a banda)": (bollinger_rsi, 15)}
 JANELA = 300  # velas lidas por ciclo: aquece a média de 20 e o RSI de 14
 RECENTES = 60  # velas mais novas em que procura sinal (cobre o robô parado por até 1 hora)

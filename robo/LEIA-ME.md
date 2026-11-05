@@ -56,7 +56,7 @@ Baixa o histórico de velas de 1 minuto da Binance e mede se modelos conseguem p
 uv run python -m mneme.setups
 ```
 
-O resultado de cada setup fica em `conhecimento/setups.md`. Em 31/10/2026, só **Bollinger + RSI em 15 minutos** passou do empate de 54,05%, em anos e moedas diferentes, com folga pequena.
+O resultado de cada setup fica em `conhecimento/setups.md`. Na medição de 05/11/2026, com correção por múltiplos testes, nenhum setup passou do empate de 54,05%; os de reversão têm vantagem real sobre 50%.
 
 ### Teste ao vivo
 
@@ -95,6 +95,16 @@ docker compose up -d --build
 uv run python -m mneme.dados fluxo
 uv run python -m mneme.dados importar-derivativos --meses 24
 uv run python -m mneme.dados resumo-fluxo
+```
+
+## Laboratório
+
+`mneme/laboratorio/` mede estratégias sem vazamento: entrada depois do sinal, custos por modalidade, walk-forward com purga e embargo, correção por múltiplos testes (Holm, Sharpe deflacionado, PBO), placebos e um detector de sinal que olha o futuro. Toda tentativa fica em `dados/laboratorio/experimentos.jsonl`.
+
+```bash
+uv run python -m mneme.laboratorio setups --minutos 5 15 --payout 0.85
+uv run python -m mneme.laboratorio spot --alvo 15 --stop 15 --velas 480
+uv run python -m mneme.laboratorio modelos --horizontes 5 15
 ```
 
 ## Próximos passos

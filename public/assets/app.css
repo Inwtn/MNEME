@@ -476,3 +476,8 @@ footer { max-width: 1680px; margin: 0 auto; padding: 16px 24px 24px; }
 .score-vs { font-size: 24px; }
 .score-note { font-size: 11px; line-height: 1.5; margin: 14px 0 0; }
 @media (max-width: 600px) { .feed-score { padding: 12px; } .score-card { padding: 12px; } .feed-score-cards { gap: 8px; } .feed-score-toolbar select { max-width: 185px; } }
+
+/* Parâmetros de estratégias do laboratório */
+.fimathe-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+#fimathe-settings-panel { margin-top: 28px; }
+#fimathe-settings-panel .form-section { padding: 20px 0; }

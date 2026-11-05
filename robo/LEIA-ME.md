@@ -110,3 +110,16 @@ uv run python -m mneme.laboratorio modelos --horizontes 5 15
 ## Próximos passos
 
 A ordem de implementação está em `docs/architecture/ROADMAP.md`.
+
+### Fimathe no conjunto de estratégias
+
+A Fimathe experimental participa do mesmo catálogo de setups e do registro de experimentos acima. Os parâmetros são definidos em Configurações → Fimathe e exportados em JSON. Sem regra completa, não gera entradas; um contrato configurado para XAUUSD não é usado nos pares da Binance.
+
+```bash
+uv run python -m mneme.laboratorio catalogo
+uv run python -m mneme.laboratorio --config-estrategias dados/fimathe-config.json --pares XAUUSD setups --minutos 5 15
+uv run python -m mneme.laboratorio --config-estrategias dados/fimathe-config.json --pares XAUUSD spot
+uv run python -m mneme.laboratorio fimathe --config dados/fimathe-config.json --csv dados/xauusd.csv --fonte "Exportação XAUUSD da corretora"
+```
+
+O teste de posições mantém o stop/alvo, lote e custos da Fimathe, sem substituir sua regra pelas barreiras de ATR dos outros setups. A interface comum está em Treino Bot → Estratégias em avaliação, com importação dos resultados de `dados/laboratorio/`. Não há aba explicativa separada. Continua somente simulada, sem promoção automática para execução ao vivo.

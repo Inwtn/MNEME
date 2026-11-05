@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "strategies": [
+    {
+      "id": "Fimathe (canais)",
+      "name": "Fimathe (canais)",
+      "kind": "setup"
+    },
+    {
+      "id": "Rejeição em suporte/resistência",
+      "name": "Rejeição em suporte/resistência",
+      "kind": "setup"
+    },
+    {
+      "id": "Rejeição em S/R a favor da EMA 10",
+      "name": "Rejeição em S/R a favor da EMA 10",
+      "kind": "setup"
+    },
+    {
+      "id": "RSI 4 saindo de 80/20",
+      "name": "RSI 4 saindo de 80/20",
+      "kind": "setup"
+    },
+    {
+      "id": "Bollinger + RSI (volta para a banda)",
+      "name": "Bollinger + RSI (volta para a banda)",
+      "kind": "setup"
+    },
+    {
+      "id": "Cruzamento EMA 9/21 + VWAP",
+      "name": "Cruzamento EMA 9/21 + VWAP",
+      "kind": "setup"
+    },
+    {
+      "id": "Engolfo (sozinho)",
+      "name": "Engolfo (sozinho)",
+      "kind": "setup"
+    },
+    {
+      "id": "Martelo / estrela cadente (sozinho)",
+      "name": "Martelo / estrela cadente (sozinho)",
+      "kind": "setup"
+    },
+    {
+      "id": "Três velas da mesma cor (continua)",
+      "name": "Três velas da mesma cor (continua)",
+      "kind": "setup"
+    },
+    {
+      "id": "Reversão após movimento forte de 1 h",
+      "name": "Reversão após movimento forte de 1 h",
+      "kind": "setup"
+    },
+    {
+      "id": "regressão logística",
+      "name": "regressão logística",
+      "kind": "modelo"
+    },
+    {
+      "id": "gradient boosting",
+      "name": "gradient boosting",
+      "kind": "modelo"
+    }
+  ]
+}

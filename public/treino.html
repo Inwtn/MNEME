@@ -25,6 +25,13 @@
   <section class="pane training-board" aria-label="Comparação dos bots">
     <div class="table-wrap"><table class="bot-compare"><thead><tr><th>Estratégia</th><th class="num">PnL total</th><th class="num">ROI</th><th class="num hide-sm">Patrimônio</th><th class="num hide-sm">PnL hoje</th><th class="num hide-sm">Posições</th><th class="num hide-sm">Trades</th><th class="hide-sm">Status</th></tr></thead><tbody id="botComparison"><tr><td colspan="8" class="empty">Carregando…</td></tr></tbody></table></div>
   </section>
+  <section class="pane training-section" id="laboratorio" aria-label="Estratégias em avaliação">
+    <h2>Estratégias em avaliação</h2>
+    <p id="labStatus" class="muted" role="status">Carregando catálogo…</p>
+    <div class="table-wrap"><table><thead><tr><th>Estratégia</th><th>Tipo</th><th>Ativo / período</th><th>Amostra</th><th>Acerto</th><th>Resultado líquido</th><th>Status</th></tr></thead><tbody id="labStrategies"></tbody></table></div>
+    <p><label for="labResults">Carregar resultados do laboratório</label> <input id="labResults" type="file" accept=".json"></p>
+    <a href="/configuracoes#fimathe">Configurar Fimathe</a>
+  </section>
   <section class="pane bot-focus" aria-label="Carteira selecionada">
     <div class="bot-focus-head"><h2 id="selectedBotName">Carteira</h2><button id="addCapitalButton" class="btn small" type="button" disabled>+ Aportar capital</button></div>
     <p id="capitalNotice" class="capital-notice" role="status"></p>
@@ -101,5 +108,7 @@
   </form>
 </dialog>
 <script src="/assets/training.js?v=20261031-activity"></script>
+<script src="/assets/fimathe-settings.js"></script>
+<script src="/assets/laboratorio.js"></script>
 </body>
 </html>

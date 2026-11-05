@@ -11,6 +11,9 @@ from collections.abc import Callable
 import numpy as np
 import pandas as pd
 
+from functools import partial
+from ..laboratorio.fimathe import NOME as NOME_FIMATHE, configuracao as configurar_fimathe, sinais as fimathe
+
 
 # ---------- indicadores ----------
 
@@ -146,6 +149,7 @@ def reversao_movimento_forte(v: pd.DataFrame) -> pd.Series:
 
 
 SETUPS: dict[str, Callable[[pd.DataFrame], pd.Series]] = {
+    NOME_FIMATHE: fimathe,
     "Rejeição em suporte/resistência": sr_rejeicao,
     "Rejeição em S/R a favor da EMA 10": sr_rejeicao_tendencia,
     "RSI 4 saindo de 80/20": rsi4_80_20,
@@ -156,6 +160,15 @@ SETUPS: dict[str, Callable[[pd.DataFrame], pd.Series]] = {
     "Três velas da mesma cor (continua)": tres_velas,
     "Reversão após movimento forte de 1 h": reversao_movimento_forte,
 }
+
+
+def setups_configurados(configuracoes: dict | None = None, par: str | None = None) -> dict:
+    """Mesmo catálogo; Fimathe só participa com regra completa e contrato do ativo correto."""
+    registro = {nome: funcao for nome, funcao in SETUPS.items() if nome != NOME_FIMATHE}
+    regra = configurar_fimathe(configuracoes, par)
+    if regra is not None:
+        registro[NOME_FIMATHE] = partial(fimathe, regra=regra)
+    return registro
 
 
 def medir(v: pd.DataFrame, sinal: pd.Series, minutos: int) -> tuple[int, float, float, float]:

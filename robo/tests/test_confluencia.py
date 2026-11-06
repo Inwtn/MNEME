@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from mneme.laboratorio.confluencia import _floresta, _logistica, grade_de_sinais, pesos_aprendidos, por_pesos, por_votos
+from mneme.laboratorio.confluencia import _floresta, _logistica, decidir, grade_de_sinais, treinar_pesos, pesos_aprendidos, por_pesos, por_votos
 
 
 def _velas(n=20000, semente=0):
@@ -53,6 +53,27 @@ def test_pesos_acham_a_tecnica_boa_e_o_lado_da_ruim():
     assert pesos["A"] > 0.3 and pesos["B"] < -0.3 and abs(pesos["C"]) < pesos["A"] / 3
     r = por_pesos(s, y, v, 5, _logistica, fracoes=(0.2,))[0]
     assert r["acerto"] > 0.6 and r["ic95_dias"][0] > 0.55
+
+
+def test_decisao_abaixo_do_corte_nao_opera_e_acima_explica():
+    modelo = {"tecnicas": ["RSI extremo", "rompimento", "FVG"], "pesos": [0.4, -0.3, 0.0], "intercepto": 0.0, "corte": 0.1}
+    sinal = decidir(modelo, pd.Series({"RSI extremo": 1, "rompimento": -1, "FVG": 1}))
+    assert sinal["direcao"] == 1 and sinal["prob_sobe"] > 0.6
+    assert sinal["motivo"].startswith("a favor: RSI extremo") and "a favor: rompimento" in sinal["motivo"] and "FVG" not in sinal["motivo"]
+    assert decidir(modelo, pd.Series({"RSI extremo": 0, "rompimento": 0, "FVG": 1})) is None
+
+
+def test_tecnica_contra_aparece_no_motivo():
+    modelo = {"tecnicas": ["A", "B"], "pesos": [1.0, 0.2], "intercepto": 0.0, "corte": 0.05}
+    assert "contra: B" in decidir(modelo, pd.Series({"A": 1, "B": -1}))["motivo"]
+
+
+def test_pesos_treinados_servem_para_decidir_depois():
+    s, y, v = _caso(True)
+    modelo = treinar_pesos(s, y)
+    assert modelo["tecnicas"] == ["A", "B", "C"] and modelo["corte"] > 0
+    assert decidir(modelo, pd.Series({"A": 1, "B": -1, "C": 0}))["direcao"] == 1
+    assert decidir(modelo, pd.Series({"A": -1, "B": 1, "C": 0}))["direcao"] == -1
 
 
 def test_arvores_aceitam_nomes_com_pontuacao():

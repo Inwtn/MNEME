@@ -25,6 +25,7 @@ import pandas as pd
 from .config import PASTA_DADOS
 from .dados.armazem import ArmazemVelas, agora_utc
 from .dados.eventos import ArmazemEventos
+from .laboratorio.confluencia import decidir
 from .laboratorio.horizontes import retorno_da_operacao, uma_por_vez
 from .laboratorio.tecnicas import NOMES, todas_as_tecnicas
 from .laboratorio.validacao import intervalo_wilson
@@ -37,6 +38,7 @@ IDADE_MAXIMA = timedelta(minutes=3)
 PREVISOES_ANTES_DE_CONFIAR = 100
 FRACAO_CONFIANTE = 0.2
 ESTRATEGIA_MODELO = "modelo: mais confiantes"
+ESTRATEGIA_CONFLUENCIA = "confluência com pesos"
 
 
 def ultima_vela_fechada(ultima_abertura: datetime, minutos: int) -> pd.Timestamp:
@@ -45,12 +47,24 @@ def ultima_vela_fechada(ultima_abertura: datetime, minutos: int) -> pd.Timestamp
     return t - pd.Timedelta(minutes=(t.hour * 60 + t.minute + 1) % minutos)
 
 
+def carregar_pesos(pasta: Path) -> dict[tuple[str, int], dict]:
+    """Pesos treinados só com o período de desenvolvimento. Sem arquivo, a confluência fica de fora e o resto segue."""
+    modelos = {}
+    if pasta.exists():
+        for arquivo in pasta.glob("*.json"):
+            par, minutos = arquivo.stem.rsplit("_", 1)
+            modelos[(par, int(minutos))] = json.loads(arquivo.read_text(encoding="utf-8"))
+    return modelos
+
+
 class Carteira:
     def __init__(self, raiz: Path | str, pares: list[str], relogio: Callable[[], datetime] = agora_utc):
         self.velas, self.eventos = ArmazemVelas(raiz), ArmazemEventos(raiz)
         self.pares, self.relogio = pares, relogio
         self.batimento = Path(raiz) / "carteira.batimento"
         self.feitas: set[tuple[str, str, pd.Timestamp]] = set()
+        self.modelos = carregar_pesos(Path(raiz).parent / "modelos" / "confluencia")
+        log.info("Confluência com pesos para %d combinações de par e tempo.", len(self.modelos))
         for par in pares:
             anteriores = self.eventos.ler("carteira", par)
             if not anteriores.empty:
@@ -75,7 +89,11 @@ class Carteira:
                 linhas = []
                 if vela in sinais.index:
                     linha = sinais.loc[vela]
-                    linhas = [{"estrategia": NOMES.get(c, c), "tempo": tempo, "expiracao": minutos, "direcao": int(d), "ocorrido_em": vela, "recebido_em": agora} for c, d in linha.items() if d != 0]
+                    linhas = [{"estrategia": NOMES.get(c, c), "tempo": tempo, "expiracao": minutos, "direcao": int(d), "ocorrido_em": vela, "recebido_em": agora, "motivo": ""} for c, d in linha.items() if d != 0]
+                    modelo = self.modelos.get((par, minutos))
+                    decisao = decidir(modelo, linha) if modelo else None
+                    if decisao:
+                        linhas.append({"estrategia": ESTRATEGIA_CONFLUENCIA, "tempo": tempo, "expiracao": minutos, "direcao": decisao["direcao"], "ocorrido_em": vela, "recebido_em": agora, "motivo": decisao["motivo"]})
                 # Vela sem sinal também é marcada: reiniciar o serviço não pode fazê-lo decidir de novo com outra hora de chegada.
                 self.eventos.gravar("carteira", par, linhas or [{"estrategia": "sem sinal", "tempo": tempo, "expiracao": minutos, "direcao": 0, "ocorrido_em": vela, "recebido_em": agora}])
                 self.feitas.add((par, tempo, vela))

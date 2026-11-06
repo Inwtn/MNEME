@@ -93,15 +93,52 @@ def pesos_aprendidos(sinais: pd.DataFrame, y: pd.Series) -> dict[str, float]:
     return {NOMES.get(c, c): round(float(p), 4) for c, p in sorted(zip(sinais.columns, modelo.coef_[0]), key=lambda t: -abs(t[1]))}
 
 
+def treinar_pesos(sinais: pd.DataFrame, y: pd.Series, fracao: float = 0.1, dobras: int = 5, embargo: int = 2) -> dict:
+    """Pesos finais para a carteira ao vivo. O corte vem das previsões fora da amostra, porque as de dentro seriam confiantes demais."""
+    validas = y.notna()
+    x, y = sinais[validas].astype("float32"), y[validas]
+    x.columns = list(sinais.columns)
+    fora = fora_da_amostra(_logistica, x, y, dobras_walk_forward(len(x), dobras, 1, embargo))
+    final = _logistica().fit(x, y)
+    return {"tecnicas": list(sinais.columns), "pesos": [float(p) for p in final.coef_[0]], "intercepto": float(final.intercept_[0]), "corte": float(np.quantile(np.abs(fora.prob - 0.5), 1 - fracao)), "fracao": fracao, "ate": str(x.index[-1])}
+
+
+def decidir(modelo: dict, linha: pd.Series) -> dict | None:
+    """Soma as técnicas com os pesos aprendidos. Abaixo do corte não opera. Devolve a direção e o motivo, do que mais pesou para o que menos pesou."""
+    sinais = linha.reindex(modelo["tecnicas"]).fillna(0).to_numpy(dtype=float)
+    pesos = np.asarray(modelo["pesos"])
+    prob = float(1 / (1 + np.exp(-(modelo["intercepto"] + sinais @ pesos))))
+    if abs(prob - 0.5) < modelo["corte"]:
+        return None
+    direcao = 1 if prob >= 0.5 else -1
+    contribuicoes = sinais * pesos
+    ordem = [i for i in np.argsort(-np.abs(contribuicoes)) if contribuicoes[i] != 0]
+    motivo = "; ".join(f"{'a favor' if contribuicoes[i] * direcao > 0 else 'contra'}: {NOMES.get(modelo['tecnicas'][i], modelo['tecnicas'][i])}" for i in ordem[:6])
+    return {"direcao": direcao, "prob_sobe": prob, "motivo": motivo}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="mneme.laboratorio.confluencia")
     parser.add_argument("--raiz", default=os.getenv("MNEME_DADOS_MERCADO", str(PASTA_DADOS / "mercado")))
     parser.add_argument("--pasta", default=str(PASTA_DADOS / "laboratorio"))
     parser.add_argument("--pares", default=",".join(PARES))
     parser.add_argument("--candle", type=int, default=5)
+    parser.add_argument("--treinar", action="store_true", help="Grava os pesos para a carteira ao vivo")
+    parser.add_argument("--modelos", default=str(PASTA_DADOS / "modelos" / "confluencia"))
     args = parser.parse_args()
     pasta = Path(args.pasta)
     armazem, registro = ArmazemVelas(args.raiz), Registro(pasta / "experimentos.jsonl")
+    if args.treinar:
+        destino = Path(args.modelos)
+        destino.mkdir(parents=True, exist_ok=True)
+        for par in [p.strip().upper() for p in args.pares.split(",") if p.strip()]:
+            v = armazem.ler(par)
+            v = v[v.index < SELADO_DESDE]
+            sinais = grade_de_sinais(v, args.candle)
+            modelo = treinar_pesos(sinais, alvos(v, args.candle)["sobe"].reindex(sinais.index))
+            (destino / f"{par}_{args.candle}.json").write_text(json.dumps(modelo, ensure_ascii=False, indent=1), encoding="utf-8")
+            print(par, "corte", round(modelo["corte"], 4), flush=True)
+        return
     saida = []
     for par in [p.strip().upper() for p in args.pares.split(",") if p.strip()]:
         v = armazem.ler(par)

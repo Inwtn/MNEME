@@ -107,6 +107,16 @@ Até 31/07/2026, sem tocar a área selada. Candle, previsão, atraso e expiraç�
 
 **Depois de 01/08, área selada exposta:** no TradingView, Bollinger em ETH 15 min deu 52,75% de 31/08 a 06/11, com 546 operações. Fica abaixo do empate e bem abaixo dos 58,02% do desenvolvimento. O script não é idêntico ao laboratório em tudo, mas o número pesa contra a hipótese.
 
+## Confluência (`mneme.laboratorio.confluencia`)
+
+Candle de 5 min, até 31/07/2026, 1 minuto de atraso, uma operação de cada vez. Sem correção pelas combinações testadas.
+
+- **Contar votos não funciona:** com 2 a 6 técnicas concordando, o acerto fica em 48% a 49% em quase todos os casos. Muitas técnicas seguem a tendência e erram juntas; concordar não prova nada.
+- **Pesos aprendidos funcionam melhor:** em ETH, expiração de 15 min, os 10% mais confiantes dão 57,04% (5.319 operações, 10 por dia, intervalo de 55,7% a 58,2%, 5 de 6 trimestres), contra 55,30% de Bollinger sozinho. Em 5 min, os 5% mais confiantes dão 56,51% (9,2 por dia, intervalo de 55,2% a 57,7%, 6 de 6 trimestres), contra 55,13%.
+- **O que os pesos aprenderam, nos três ativos:** RSI extremo e Bollinger pesam a favor. Rompimento, reteste e FVG (em geral) pesam contra.
+- **Regressão logística empatou ou venceu as árvores:** com só esses sinais, um modelo simples basta.
+- **BTC e SOL ficam mais fracos.** BTC em 15 min chega a 55,93% com 5%, mas só 4 de 6 trimestres ficam acima do empate.
+
 ## Limites desta medição
 
 - São só 24 meses, e os pares são correlacionados: Holm é conservador nesse caso.

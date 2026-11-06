@@ -1,32 +1,46 @@
 # Catálogo de skills do MNEME
 
-Biblioteca enxuta para o agente de desenvolvimento e pesquisa. Skills não fazem parte da arquitetura operacional e não redefinem o produto, que está no [Product Charter](../PRODUCT_CHARTER.md).
+Biblioteca do agente de desenvolvimento e pesquisa. Skills não fazem parte da arquitetura operacional e não redefinem o produto, que está no [Product Charter](../PRODUCT_CHARTER.md). Se uma skill conflitar com o Charter, vale o Charter.
 
-## Instaladas
+Todas ficam em `.claude/skills/`. Scripts de terceiros só rodam quando alguém pede, e nenhum gancho roda sozinho.
 
-| Skill | Quando usar | Origem | Scripts |
+## Originais da comunidade
+
+Instaladas sem mudança no texto, com `LICENSE` e `ORIGEM.txt` na pasta.
+
+| Skill | Autor | Licença | Quando usar |
 |---|---|---|---|
-| `mneme-verificacao` | Antes de dizer que terminou, de fazer commit ou de entregar | Reescrita a partir de `obra/superpowers` | Nenhum |
-| `mneme-auditoria-backtest` | Ao criar, revisar ou relatar backtest, modelo ou estratégia | Reescrita a partir de `agiprolabs/claude-trading-skills` e de ideias públicas | Nenhum |
-| `mneme-revisao-injecao` | Ao ligar fonte externa, LLM, MCP ou skill externa | Reescrita a partir de `basitalisandhu/agent-security-skills` | Nenhum |
+| `systematic-debugging` | Jesse Vincent (`obra/superpowers`) | MIT | Antes de propor correção para falha ou bug |
+| `test-driven-development` | Jesse Vincent (`obra/superpowers`) | MIT | Ao implementar funcionalidade ou correção |
+| `context-engineering` | Addy Osmani (`addyosmani/agent-skills`) | MIT | Quando a qualidade do agente cair ou ao trocar de tarefa |
+| `doubt-driven-development` | Addy Osmani (`addyosmani/agent-skills`) | MIT | Em decisões importantes que precisam de revisão crítica |
+| `observability-and-instrumentation` | Addy Osmani (`addyosmani/agent-skills`) | MIT | Ao adicionar logs, métricas ou alertas ao robô |
+| `backtest-expert` | TraderMonty (`tradermonty/claude-trading-skills`) | MIT | Ao testar a robustez de estratégias |
+| `market-microstructure` | agiprolabs (`agiprolabs/claude-trading-skills`) | MIT | Fluxo de ordens e pressão de compra e venda em DEX |
+| `regime-detection` | agiprolabs (`agiprolabs/claude-trading-skills`) | MIT | Identificar regimes de mercado |
+| `slippage-modeling` | agiprolabs (`agiprolabs/claude-trading-skills`) | MIT | Estimar custo de execução e tamanho da operação em AMM |
+| `whale-tracking` | agiprolabs (`agiprolabs/claude-trading-skills`) | MIT | Grandes carteiras e sinais on-chain em Solana |
+| `trade-journal` | agiprolabs (`agiprolabs/claude-trading-skills`) | MIT | Diário, revisão de desempenho e atribuição por estratégia |
 
-Ficam em `.claude/skills/`. As skills `frontend-design` e `power` já existiam, tratam só de design visual e continuam fora do Git.
+## Feitas para o MNEME
 
-## Fila de avaliação
+| Skill | Quando usar | Inspirada em |
+|---|---|---|
+| `mneme-verificacao` | Antes de dizer que terminou, de fazer commit ou de entregar | `obra/superpowers` |
+| `mneme-auditoria-backtest` | Ao criar, revisar ou relatar backtest, modelo ou estratégia | `agiprolabs/claude-trading-skills` e ideias públicas |
+| `mneme-revisao-injecao` | Ao ligar fonte externa, LLM, MCP ou skill externa | `basitalisandhu/agent-security-skills` |
 
-Nada aqui está instalado. O motivo e a ordem estão no [plano de integração](SKILL_INTEGRATION_PLAN.md).
+As skills `frontend-design` e `power` já existiam, tratam só de design visual e continuam fora do Git.
 
-| Candidata | Repositório | Ajudaria em | Lote |
-|---|---|---|---|
-| `doubt-driven-development` | `addyosmani/agent-skills` | Questionar decisões de arquitetura | 2 |
-| `observability-and-instrumentation` | `addyosmani/agent-skills` | Monitorar o motor em operação | 2 |
-| `backtest-expert` | `tradermonty/claude-trading-skills` | Testes de estresse e método de robustez | 2 |
-| `edge-candidate-agent` | `tradermonty/claude-trading-skills` | Ciclo de hipóteses, seção 8 do Charter | 2 |
-| `pine-backtester` | `JerryLiu369/awesome-quant-skills` (agregador) | Scripts do TradingView | 2 |
-| `market-microstructure`, `slippage-modeling` | `agiprolabs/claude-trading-skills` | Order flow e custos | 3 |
-| `helius-api`, `whale-tracking`, `wallet-profiling` | `agiprolabs/claude-trading-skills` | Solana, on-chain e carteiras | 3 |
-| `regime-detection` | `agiprolabs/claude-trading-skills` | Regimes na decisão | 3 |
-| `supply-chain-risk-auditor` | `trailofbits/skills` | Auditar dependências | 3 |
-| Graphify, só no modo local | `Graphify-Labs/graphify` | Reduzir o gasto de contexto | Experimento isolado |
+## Próximas candidatas
 
-A avaliação completa, inclusive do que foi recusado, está em [SKILL_EVALUATION.md](SKILL_EVALUATION.md).
+| Candidata | Repositório | Ajudaria em |
+|---|---|---|
+| `edge-candidate-agent` | `tradermonty/claude-trading-skills` | Ciclo de hipóteses |
+| `pine-backtester` | `JerryLiu369/awesome-quant-skills`, procurando o autor original | Scripts do TradingView |
+| `helius-api`, `wallet-profiling`, `feature-engineering`, `risk-management` | `agiprolabs/claude-trading-skills` | Solana, atributos e risco |
+| `prompt-injection-review`, `mcp-server-review` | `basitalisandhu/agent-security-skills` | Segurança de agentes, na versão original |
+| `supply-chain-risk-auditor` | `trailofbits/skills` | Auditar dependências |
+| Graphify | `Graphify-Labs/graphify` | Reduzir o gasto de contexto |
+
+A avaliação está em [SKILL_EVALUATION.md](SKILL_EVALUATION.md).

@@ -1,0 +1,1 @@
+agiprolabs/claude-trading-skills

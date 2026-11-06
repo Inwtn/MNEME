@@ -71,3 +71,27 @@ def test_nomes_citados_na_revisao_existem_no_codigo():
     from mneme import analista
 
     assert all(hasattr(analista, n) for n in ("verificar_leitura", "ler_noticia", "responder", "ATAQUES", "avaliar_ataques"))
+
+
+ORIGINAIS = ("systematic-debugging", "test-driven-development", "context-engineering", "doubt-driven-development", "observability-and-instrumentation", "backtest-expert", "market-microstructure", "regime-detection", "slippage-modeling", "whale-tracking", "trade-journal")
+
+
+@pytest.mark.parametrize("nome", ORIGINAIS)
+def test_original_mantem_licenca_e_origem_sem_ganchos(nome):
+    pasta = SKILLS / nome
+    if not pasta.exists():
+        pytest.skip(f"{nome} não veio nesta cópia")
+    assert "MIT" in (pasta / "LICENSE").read_text(encoding="utf-8") and "/" in (pasta / "ORIGEM.txt").read_text(encoding="utf-8")
+    assert not [a for a in pasta.rglob("*") if a.name in ("hooks.json", "plugin.json", ".mcp.json")]
+    catalogo = RAIZ / "docs" / "skills" / "SKILL_CATALOG.md"
+    if catalogo.exists():
+        assert f"`{nome}`" in catalogo.read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize("nome", ORIGINAIS)
+def test_original_nao_pede_chave_privada_nem_passa_por_cima_das_regras(nome):
+    pasta = SKILLS / nome
+    if not pasta.exists():
+        pytest.skip(f"{nome} não veio nesta cópia")
+    texto = "\n".join(a.read_text(encoding="utf-8", errors="ignore").lower() for a in pasta.rglob("*") if a.is_file())
+    assert "private_key" not in texto and "keypair" not in texto and "ignore previous" not in texto

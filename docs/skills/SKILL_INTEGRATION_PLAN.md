@@ -4,49 +4,48 @@ Skills ampliam o agente de desenvolvimento e pesquisa. Elas não substituem a ar
 
 ## Regras
 
-1. **Reescrever, em vez de copiar.** A skill entra adaptada ao código do MNEME, curta e em português, com crédito ao autor original.
-2. **Sem plugins nem ganchos de terceiros.** Nada roda sozinho ao iniciar a sessão.
-3. **Sem scripts no primeiro momento.** Um script só entra depois de lido por inteiro, testado no ambiente do projeto e com a dependência justificada.
-4. **O Charter manda.** A skill não muda objetivo, mercados, regras de risco nem autoriza operação.
-5. **Sem chave nem dinheiro.** Skill que peça chave privada, assine transação ou envie ordem fica fora.
-6. **Licença do autor original.** Só se reutiliza texto se a licença permitir e for compatível com o repositório.
-7. **Limite de tamanho.** Até 100 linhas por skill e descrição de até 300 caracteres, para gastar pouco contexto.
-8. **Skill precisa de um motivo real.** Ela responde a uma falha ou a uma lacuna do Charter.
+A intenção é aproveitar o que a comunidade já fez. Popularidade não é prova, mas uma preocupação vaga também não é motivo para recusar.
 
-## Lote 1: incorporado
+**Instale a original** quando a licença permitir e ela for útil para o Charter.
 
-| Skill | Falha ou lacuna que resolve |
-|---|---|
-| `mneme-verificacao` | Sobrescrita da `carteira.py` e commits incompletos |
-| `mneme-auditoria-backtest` | Exposição da área selada e resultados sem correção |
-| `mneme-revisao-injecao` | Fontes externas entrando, e LLM com baixa resistência a ataques |
+**Só estas situações bloqueiam a instalação:**
 
-## Próximos lotes
+1. Gancho ou plugin que roda sozinho e não foi aprovado pelo dono.
+2. Pedido de chave privada, assinatura de transação ou envio de ordem real.
+3. Instrução que tente passar por cima do Charter ou do Risk Engine.
+4. Código com comportamento suspeito ou não inspecionado.
+5. Licença que não permita o uso no repositório.
 
-| Lote | Quando | O que avaliar |
-|---|---|---|
-| **2** | Quando o motor estiver acumulando operações e o ciclo de hipóteses começar | `backtest-expert`, `edge-candidate-agent`, `observability-and-instrumentation`, `doubt-driven-development`, `pine-backtester` |
-| **3** | Quando chegar a etapa de Solana, on-chain e order flow | `market-microstructure`, `slippage-modeling`, `helius-api`, `whale-tracking`, `wallet-profiling`, `regime-detection`, `supply-chain-risk-auditor` |
-| **Experimento** | Se o gasto de contexto virar problema medido | Graphify no modo local, em uma cópia isolada, comparando o gasto com e sem ele |
-
-## Como incorporar uma skill
+## Como instalar
 
 1. Ache o autor original, e não o agregador.
-2. Registre em [SKILL_EVALUATION.md](SKILL_EVALUATION.md): licença, manutenção, testes e nível de leitura.
-3. Leia o SKILL.md e os scripts como dados. Não execute nada para descobrir o que faz.
-4. Rode a revisão de `mneme-revisao-injecao`.
-5. Escreva a versão do MNEME em `.claude/skills/mneme-<nome>/`.
-6. Adicione ao [catálogo](SKILL_CATALOG.md).
-7. Rode `robo/tests/test_skills.py` e a suíte completa, seguindo `mneme-verificacao`.
-8. Faça um commit separado.
+2. Baixe como dado, sem executar. Leia o SKILL.md e procure rede, chaves e subprocessos nos scripts.
+3. Copie a pasta para `.claude/skills/`, com `LICENSE` e `ORIGEM.txt`, e libere o nome no `.gitignore`.
+4. Adicione ao [catálogo](SKILL_CATALOG.md) e à lista de `robo/tests/test_skills.py`.
+5. Rode a suíte completa, seguindo `mneme-verificacao`, e faça um commit separado.
+
+Scripts de terceiros usam API pública com chave opcional, e essa chave fica só no `.env`. Antes de um script virar parte do robô, ele precisa de teste próprio.
+
+## Lotes
+
+| Lote | Estado | Skills |
+|---|---|---|
+| **1** | Instalado | 11 originais e 3 feitas para o MNEME, listadas no catálogo |
+| **2** | Na próxima etapa de hipóteses e TradingView | `edge-candidate-agent`, `pine-backtester`, `feature-engineering`, `risk-management` |
+| **3** | Na etapa de Solana e segurança | `helius-api`, `wallet-profiling`, `prompt-injection-review`, `mcp-server-review`, `supply-chain-risk-auditor` |
+| **Experimento** | Se o gasto de contexto incomodar | Graphify, no modo local |
+
+## Plugin superpowers
+
+As skills `systematic-debugging` e `test-driven-development` já estão instaladas. O plugin completo adiciona um gancho no início de cada sessão e faz a skill `using-superpowers` ser usada antes de qualquer resposta. A decisão de instalar é do dono, com `/plugin` em um terminal do Claude Code. Com ele, o Charter continua valendo.
 
 ## Como medir e remover
 
-- A cada lote, veja se a skill foi usada e se evitou algum erro. Skill sem uso sai.
-- Para remover, apague a pasta e a linha do catálogo. O histórico fica no Git.
+- A cada lote, veja se a skill foi usada e se ajudou. Skill sem uso sai.
+- Para remover, apague a pasta, a linha do catálogo e a entrada de `robo/tests/test_skills.py`. O histórico fica no Git.
 
 ## O que os testes cobrem
 
-`robo/tests/test_skills.py` confere o formato, o tamanho, a ausência de scripts e ganchos, a referência ao Charter, a presença no catálogo e frases proibidas, como autorizar operação real.
+`robo/tests/test_skills.py` confere formato, licença, origem, ausência de ganchos e presença no catálogo. Nas skills `mneme-*`, confere também a referência ao Charter e as frases proibidas.
 
 Esses testes não provam que a skill é ativada no momento certo. Isso só se confirma numa sessão nova.

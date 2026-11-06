@@ -1,6 +1,6 @@
 # Avaliação de skills open source
 
-Feita em 06/11/2026. Números vieram da API do GitHub nesse dia. Nenhum script de terceiros foi executado, e nenhum plugin foi instalado.
+Feita em 06/11/2026. Números vieram da API do GitHub nesse dia. Nenhum script de terceiros foi executado, e nenhum plugin foi instalado. A primeira versão foi conservadora demais; o dono apontou isso, e 11 skills originais entraram. "Busca de risco" é a procura por rede, chaves, subprocessos e instruções ao modelo, sem leitura integral.
 
 ## O que foi lido de verdade
 
@@ -16,11 +16,11 @@ O agregador `sickn33` tem 9.016 SKILL.md, e `j4flmao` tem 645. Eles não foram a
 
 | Repositório | Autor e tipo | ★ / forks | Último push | Licença | Skills | Testes | Classificação |
 |---|---|---:|---|---|---:|---|---|
-| [obra/superpowers](https://github.com/obra/superpowers) | Jesse Vincent, autor original | 313.502 / 27.892 | 03/11/2026 | MIT | 15 | Sim | **Adaptar** 1 skill. Não instalar o plugin |
-| [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | Addy Osmani, autor original | 113.694 / 11.885 | 01/11/2026 | MIT | 25 | Poucos | **Estudar** |
-| [agiprolabs/claude-trading-skills](https://github.com/agiprolabs/claude-trading-skills) | agiprolabs, conta pessoal | 513 / 105 | 03/09/2026 | MIT | 68 | Quase nenhum | **Adaptar** 1 skill. Outras para estudo |
+| [obra/superpowers](https://github.com/obra/superpowers) | Jesse Vincent, autor original | 313.502 / 27.892 | 03/11/2026 | MIT | 15 | Sim | **Incorporar** 2 skills e adaptar 1. Plugin a critério do dono |
+| [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | Addy Osmani, autor original | 113.694 / 11.885 | 01/11/2026 | MIT | 25 | Poucos | **Incorporar** 3 skills |
+| [agiprolabs/claude-trading-skills](https://github.com/agiprolabs/claude-trading-skills) | agiprolabs, conta pessoal | 513 / 105 | 03/09/2026 | MIT | 68 | Quase nenhum | **Incorporar** 5 skills e adaptar 1 |
 | [basitalisandhu/agent-security-skills](https://github.com/basitalisandhu/agent-security-skills) | Muhammad Basit Ali, autor original | 0 / 5 | 01/11/2026 | MIT | 10 | Sim | **Adaptar** 1 skill, só o método |
-| [tradermonty/claude-trading-skills](https://github.com/tradermonty/claude-trading-skills) (achado na busca) | tradermonty, conta pessoal | 3.666 / 801 | 06/11/2026 | MIT | Várias | Sim, por skill | **Estudar** |
+| [tradermonty/claude-trading-skills](https://github.com/tradermonty/claude-trading-skills) (achado na busca) | tradermonty, conta pessoal | 3.666 / 801 | 06/11/2026 | MIT | Várias | Sim, por skill | **Incorporar** 1 skill |
 | [trailofbits/skills](https://github.com/trailofbits/skills) (achado na busca) | Trail of Bits, empresa de segurança | 8.045 / 683 | 06/11/2026 | CC-BY-SA-4.0 | Várias | Parcial | **Estudar** |
 | [anthropics/skills](https://github.com/anthropics/skills) (achado na busca) | Anthropic | 188.108 / 22.189 | 28/10/2026 | Varia por skill | 18 | Não avaliado | **Não utilizar**: as úteis já existem neste ambiente |
 | [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) | Graphify Labs, empresa | 143.435 / 13.720 | 06/11/2026 | Apache-2.0 | 0 | Sim | **Estudar**, em experimento isolado |
@@ -38,19 +38,19 @@ O agregador `sickn33` tem 9.016 SKILL.md, e `j4flmao` tem 645. Eles não foram a
 |---|---|---|---|---|
 | `verification-before-completion` | obra | Integral | **Adaptar** | Ataca o erro real da `carteira.py`. Curta, sem scripts. Reescrita com a suíte, os serviços e o fluxo do MNEME |
 | `using-superpowers` | obra | Parcial | **Não utilizar** | Exige invocar skills antes de qualquer resposta e carrega por gancho no início da sessão. Disputa com o Charter e com as instruções do dono |
-| `systematic-debugging`, `test-driven-development` | obra | Lista | **Estudar** | Parecem úteis, mas custam contexto. Só entram se uma falha real justificar |
+| `systematic-debugging`, `test-driven-development` | obra | Busca de risco | **Incorporar** | Disciplina útil contra regressões. Só um script local de testes, sem rede |
 | `walk-forward-validation` | agiprolabs | Parcial | **Adaptar** | Boa explicação de purga, embargo, DSR e PBO. O laboratório já implementa isso, então o valor está em exigir o uso |
 | `risk-management` | agiprolabs | Parcial | **Estudar** | O Risk Engine já é código determinístico. Uma skill não deve competir com ele |
 | `dex-execution` | agiprolabs | Parcial | **Não utilizar** | Lê `WALLET_PRIVATE_KEY` do ambiente, assina e envia swap em mainnet. Fere o simulado primeiro. Serve de leitura quando chegar a etapa de Jupiter |
-| `market-microstructure`, `slippage-modeling`, `regime-detection`, `whale-tracking`, `trade-journal` | agiprolabs | Lista e início | **Estudar** | Ligadas a lacunas do Charter. Ainda precisam de leitura integral |
+| `market-microstructure`, `slippage-modeling`, `regime-detection`, `whale-tracking`, `trade-journal` | agiprolabs | Busca de risco | **Incorporar** | Cobrem lacunas do Charter. Scripts usam API pública com chave opcional. Não enviam ordens |
 | `backtesting-bias-avoidance` | quantskills, trazida por JerryLiu369 | Parcial | **Estudar** | O repositório original traz texto de licença GNU, enquanto o agregador é MIT. Nenhum texto foi copiado. Tem ★0, então não há adoção comprovada |
 | `backtest-review`, `data-quality-audit`, `stats-test-picker` | JerryLiu369 (agregador) | Lista | **Estudar** | É preciso achar o autor original antes de qualquer uso |
 | `pine-backtester` | JerryLiu369 (agregador) | Lista | **Estudar** | Pode ajudar nos scripts do TradingView. Lote 2 |
 | `prompt-injection-review` | basitalisandhu | Parcial | **Adaptar** | Método claro de origem e aprovação. O repositório tem pouca adoção, por isso aproveitei só a ideia e deixei os scripts de fora, embora o inventário só use biblioteca padrão |
 | `mcp-server-review`, `tool-approval-gate-audit` | basitalisandhu | Lista | **Estudar** | Úteis quando o MNEME tiver MCP ou ferramentas com efeito real |
-| `context-engineering` | addyosmani | Parcial | **Estudar** | Boa, mas o Charter e a memória já cobrem o ponto principal, e ela custa cerca de 2.200 palavras |
-| `observability-and-instrumentation` | addyosmani | Parcial | **Estudar** | Candidata para quando o motor tiver mais operações |
-| `backtest-expert` | tradermonty | Parcial | **Estudar** | Boa filosofia: procurar o que quebra menos. Foco em ações, script com testes ainda não lido |
+| `context-engineering` | addyosmani | Parcial e busca de risco | **Incorporar** | Boa orientação para sessões longas. Sem scripts |
+| `observability-and-instrumentation`, `doubt-driven-development` | addyosmani | Parcial e busca de risco | **Incorporar** | Monitoramento do robô e revisão crítica de decisões. Sem scripts |
+| `backtest-expert` | tradermonty | Parcial e busca de risco | **Incorporar** | Boa filosofia: procurar o que quebra menos. Script com testes. O foco em ações pede cuidado com custos |
 | `edge-candidate-agent` | tradermonty | Lista | **Estudar** | Pode inspirar o ciclo de hipóteses |
 | `supply-chain-risk-auditor` | trailofbits | Parcial | **Estudar** | Autor forte e método sério. A licença exige compartilhar adaptações nos mesmos termos, e os scripts ainda precisam de inspeção |
 | `backtesting-frameworks` | wshobson | Parcial | **Não utilizar** | Cerca de 310 palavras genéricas. O laboratório já vai além |

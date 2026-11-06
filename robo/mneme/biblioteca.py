@@ -22,6 +22,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
+from urllib.robotparser import RobotFileParser
 
 import httpx
 import numpy as np
@@ -287,6 +288,54 @@ def baixar_chartschool(cliente: httpx.Client, limite: int = 150, pausa: float = 
     return docs
 
 
+@dataclass(frozen=True)
+class FonteWeb:
+    nome: str
+    site: str
+    mapa: str
+    filtro: str
+    categoria: str
+    confiabilidade: str = "media"
+    limite: int = 150
+
+
+# Só o que o robots.txt de cada site permite. CMT e Wyckoff Analytics declaram ai-train=no; Investopedia e SSRN bloquearam o acesso; ficam de fora.
+FONTES_WEB = (
+    FonteWeb("chartschool", "https://chartschool.stockcharts.com", "https://chartschool.stockcharts.com/sitemap-pages.xml", ARTIGOS_CHARTSCHOOL.pattern, "metodologias", limite=700),
+    FonteWeb("quantconnect", "https://www.quantconnect.com", "https://www.quantconnect.com/docs/sitemap.xml", r"/docs/v2/writing-algorithms/(indicators/supported-indicators|algorithm-framework|reality-modeling)/", "metodologias", limite=200),
+    FonteWeb("tradingview", "https://www.tradingview.com", "https://www.tradingview.com/sitemaps/www_tradingview_com/sitemap-support.xml", r"/support/solutions/.*(indicator|trend|fibonacci|bollinger|rsi|macd|moving|volume|pivot|ichimoku|pattern|candle|support|resistance|strategy|backtest)", "metodologias", limite=200),
+    FonteWeb("cfa", "https://www.cfainstitute.org", "https://www.cfainstitute.org/sitemap.xml", r"/insights/articles/.*(risk|quant|factor|momentum|technical|volatil|trend|behavior|machine-learning)", "pesquisa", "alta", limite=100),
+)
+
+
+def urls_do_mapa(xml: str, filtro: str, limite: int) -> list[str]:
+    urls = [u.strip() for u in re.findall(r"<loc>\s*([^<]+?)\s*</loc>", xml)]
+    return [u for u in urls if re.search(filtro, u, re.I)][:limite]
+
+
+def baixar_site(cliente: httpx.Client, fonte: FonteWeb, pausa: float = 1.5, agente: str = "*") -> list[Documento]:
+    """Lê o mapa do site e baixa devagar. Pergunta ao robots.txt antes de cada página, e o que ele proíbe não é buscado."""
+    regras = RobotFileParser()
+    r = cliente.get(f"{fonte.site}/robots.txt")
+    regras.parse(r.text.splitlines() if r.status_code == 200 else [])
+    mapa = cliente.get(fonte.mapa)
+    mapa.raise_for_status()
+    docs = []
+    for url in urls_do_mapa(mapa.text, fonte.filtro, fonte.limite):
+        if not regras.can_fetch(agente, url):
+            continue
+        try:
+            resposta = cliente.get(url)
+            resposta.raise_for_status()
+            titulo, texto = texto_da_pagina(resposta.text)
+        except httpx.HTTPError:
+            continue
+        if titulo and len(texto) > 200:
+            docs.append(Documento(titulo, url, fonte.nome, texto, fonte.categoria, fonte.confiabilidade))
+        time.sleep(pausa)
+    return docs
+
+
 # Conjunto de perguntas com a resposta conhecida, para medir a busca em vez de supor.
 PERGUNTAS_DE_AVALIACAO = (
     ("o que é fair value gap", "metodologias.md"), ("what is the relative strength index RSI", "RSI|Relative Strength"), ("como funciona a estratégia de Bollinger e RSI", "setups.md|Bollinger"),
@@ -315,6 +364,7 @@ def main() -> None:
     i.add_argument("--local", action="store_true")
     i.add_argument("--arxiv", action="store_true")
     i.add_argument("--chartschool", action="store_true")
+    i.add_argument("--web", action="store_true", help="Todas as fontes de FONTES_WEB")
     c = sub.add_parser("consultar")
     c.add_argument("pergunta")
     c.add_argument("-k", type=int, default=5)
@@ -329,6 +379,12 @@ def main() -> None:
             print("arxiv", json.dumps(b.ingerir(baixar_arxiv(cliente))), flush=True)
         if args.chartschool:
             print("chartschool", json.dumps(b.ingerir(baixar_chartschool(cliente))), flush=True)
+        if args.web:
+            for fonte in FONTES_WEB:
+                try:
+                    print(fonte.nome, json.dumps(b.ingerir(baixar_site(cliente, fonte))), flush=True)
+                except httpx.HTTPError as erro:
+                    print(fonte.nome, "indisponível:", erro.__class__.__name__, flush=True)
     elif args.comando == "consultar":
         for r in b.consultar(args.pergunta, args.k):
             print(json.dumps({**asdict(r), "texto": r.texto[:220]}, ensure_ascii=False))

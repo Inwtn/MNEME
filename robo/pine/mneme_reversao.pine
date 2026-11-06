@@ -8,6 +8,9 @@ expiracao = input.int(1, "Sair depois de quantas velas", minval=1)
 payout = input.float(0.85, "Payout suposto da opcao digital", step=0.01)
 lados = input.int(3, "Pivo: velas de cada lado", minval=1)
 maisRecentes = input.int(40, "Linhas: quantos pivos olhar", minval=5)
+regra = input.string("Bollinger", "Regra", options=["Bollinger", "RSI extremo"])
+// Opera so daqui para frente: nao simula meses passados, para nao expor a area selada do laboratorio.
+inicio = input.time(timestamp("2026-11-06T14:15:00+00:00"), "Operar a partir de")
 
 [meio, topoBanda, baseBanda] = ta.bb(close, tamanho, desvios)
 atr = ta.atr(14)
@@ -15,13 +18,14 @@ plot(meio, "Media", color.new(color.gray, 40))
 plot(topoBanda, "Banda superior", color.new(color.teal, 20))
 plot(baseBanda, "Banda inferior", color.new(color.teal, 20))
 
-compra = close <= baseBanda
-venda = close >= topoBanda
+rsi = ta.rsi(close, 14)
+compra = regra == "Bollinger" ? close <= baseBanda : rsi <= 35
+venda = regra == "Bollinger" ? close >= topoBanda : rsi >= 65
 
 // A ordem de saida enviada no fechamento so executa na abertura seguinte: por isso o "- 1".
 if strategy.position_size != 0 and bar_index - strategy.opentrades.entry_bar_index(0) >= expiracao - 1
     strategy.close_all(comment="Saida")
-if strategy.position_size == 0 and barstate.isconfirmed
+if strategy.position_size == 0 and barstate.isconfirmed and time >= inicio
     if compra
         strategy.entry("Compra", strategy.long, comment="Compra")
     else if venda

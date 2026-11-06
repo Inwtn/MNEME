@@ -8,7 +8,9 @@ from datetime import datetime, timedelta, timezone
 import numpy as np
 import pytest
 
-from mneme.biblioteca import Biblioteca, Documento, contexto_para_llm, documentos_locais, fatiar, ler_arxiv, texto_da_pagina
+import httpx
+
+from mneme.biblioteca import Biblioteca, FonteWeb, baixar_site, urls_do_mapa, Documento, contexto_para_llm, documentos_locais, fatiar, ler_arxiv, texto_da_pagina
 
 AGORA = datetime(2026, 11, 5, 12, tzinfo=timezone.utc)
 
@@ -150,3 +152,43 @@ def test_demonstracao_de_ponta_a_ponta_com_documentos_reais(tmp_path):
     bib.ingerir(documentos_locais(), AGORA)
     r = bib.consultar("Fair Value Gap Lacuna de 3 velas", k=3)
     assert any(x.origem.endswith("metodologias.md") for x in r)
+
+
+ARTIGO = "<html><head><title>Trendlines | Fonte</title></head><body><main><h1>Trendlines</h1><p>" + "A trendline connects at least two swing lows and gains validity with a third touch. " * 5 + "</p></main></body></html>"
+
+
+def _site(robots="User-agent: *\nDisallow: /proibido/\n"):
+    pedidos = []
+
+    def responder(pedido):
+        pedidos.append(pedido.url.path)
+        if pedido.url.path == "/robots.txt":
+            return httpx.Response(200, text=robots)
+        if pedido.url.path == "/mapa.xml":
+            return httpx.Response(200, text="<urlset><url><loc>\n https://a.example/artigos/um </loc></url><url><loc>https://a.example/proibido/dois</loc></url><url><loc>https://a.example/outro/tres</loc></url></urlset>")
+        return httpx.Response(200, text=ARTIGO)
+
+    return httpx.Client(transport=httpx.MockTransport(responder)), pedidos
+
+
+FONTE = FonteWeb("teste", "https://a.example", "https://a.example/mapa.xml", r"/(artigos|proibido)/", "metodologias")
+
+
+def test_mapa_filtra_e_limita():
+    xml = "<loc>https://a/x/1</loc><loc> https://a/x/2 </loc><loc>https://a/y/3</loc>"
+    assert urls_do_mapa(xml, "/x/", 10) == ["https://a/x/1", "https://a/x/2"]
+    assert urls_do_mapa(xml, "/x/", 1) == ["https://a/x/1"]
+
+
+def test_robots_proibe_e_a_pagina_nao_e_buscada():
+    cliente, pedidos = _site()
+    docs = baixar_site(cliente, FONTE, pausa=0)
+    assert [d.origem for d in docs] == ["https://a.example/artigos/um"]
+    assert "/proibido/dois" not in pedidos and "/outro/tres" not in pedidos
+    assert docs[0].titulo == "Trendlines" and docs[0].fonte == "teste"
+
+
+def test_site_que_proibe_tudo_nao_baixa_nada():
+    cliente, pedidos = _site("User-agent: *\nDisallow: /\n")
+    assert baixar_site(cliente, FONTE, pausa=0) == []
+    assert "/artigos/um" not in pedidos

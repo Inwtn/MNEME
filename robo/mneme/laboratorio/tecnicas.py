@@ -44,12 +44,17 @@ def ombro_cabeca_ombro(v: pd.DataFrame, a: pd.DataFrame) -> pd.Series:
     saida = np.zeros(len(v))
     topos: list[float] = []
     fundos: list[float] = []
+    ultimo_topo = ultimo_fundo = -2
     for t in range(len(v)):
         # Duas velas seguidas com o mesmo extremo são um pivô só.
-        if not np.isnan(topo[t]) and not (topos and topo[t] == topos[-1]):
-            topos = (topos + [topo[t]])[-3:]
-        if not np.isnan(fundo[t]) and not (fundos and fundo[t] == fundos[-1]):
-            fundos = (fundos + [fundo[t]])[-3:]
+        if not np.isnan(topo[t]):
+            if not (topos and topo[t] == topos[-1] and t - ultimo_topo == 1):
+                topos = (topos + [topo[t]])[-3:]
+            ultimo_topo = t
+        if not np.isnan(fundo[t]):
+            if not (fundos and fundo[t] == fundos[-1] and t - ultimo_fundo == 1):
+                fundos = (fundos + [fundo[t]])[-3:]
+            ultimo_fundo = t
         if np.isnan(atr[t]):
             continue
         if len(topos) == 3 and len(fundos) >= 2 and topos[1] > max(topos[0], topos[2]) and abs(topos[0] - topos[2]) <= TOLERANCIA_OMBROS_ATR * atr[t]:

@@ -141,11 +141,13 @@ def main() -> None:
     parser.add_argument("--raiz", default=os.getenv("MNEME_DADOS_MERCADO", str(PASTA_DADOS / "mercado")))
     parser.add_argument("--payout", type=float, default=0.85)
     parser.add_argument("--pasta", default=str(PASTA_DADOS / "laboratorio"))
+    parser.add_argument("--pares", default=",".join(PARES))
+    parser.add_argument("--nome", default="tecnicas", help="Nome do arquivo de resultado")
     args = parser.parse_args()
     pasta = Path(args.pasta)
     armazem, registro = ArmazemVelas(args.raiz), Registro(pasta / "experimentos.jsonl")
     linhas = []
-    for par in PARES:
+    for par in [p.strip().upper() for p in args.pares.split(",") if p.strip()]:
         v = armazem.ler(par)
         v = v[v.index < SELADO_DESDE]
         dados = impressao_dos_dados(v)
@@ -162,7 +164,7 @@ def main() -> None:
         l["p_ajustado"], l["p50_ajustado"] = p, p50
     resumo = resumir(medidas, empate(args.payout))
     conteudo = json.loads(json.dumps({"payout": args.payout, "empate": empate(args.payout), "medicoes": len(medidas), "resumo": resumo, "linhas": linhas}, default=float), parse_constant=lambda _: None)
-    (pasta / "tecnicas.json").write_text(json.dumps(conteudo, ensure_ascii=False, indent=1), encoding="utf-8")
+    (pasta / f"{args.nome}.json").write_text(json.dumps(conteudo, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"\nEmpate {empate(args.payout):.2%}. {len(medidas)} medições. Passaram do empate após a correção: {sum(l['p_ajustado'] < 0.05 for l in medidas)}.")
     print("| Técnica | Sinais | Acerto | Medições | Acima de 50% | Corrigidas | Melhor caso |\n|---|---:|---:|---:|---:|---:|---|")
     for t in resumo:

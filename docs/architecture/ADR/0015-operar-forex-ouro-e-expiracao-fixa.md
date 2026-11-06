@@ -4,7 +4,7 @@
 
 **Contexto:** o MNEME é um robô de operações multi-mercado. O dono definiu que ele também opera Forex, ouro e operações de expiração fixa estilo Quotex.
 
-**Decisão:** um motor único, com um adaptador por modalidade. Todos os mercados começam no simulado. A execução real de cada um só é ligada com resultado medido, Risk Engine aprovando e integração autorizada pelo dono.
+**Decisão:** um motor único, com um adaptador por modalidade. Todos os mercados começam no simulado. Na Quotex, o produto é primordialmente sinal, com horário e expiração, e cada sinal é apurado no simulado. A execução real de cada mercado só é ligada com resultado medido, Risk Engine aprovando e integração autorizada pelo dono.
 
 **Consequências:**
 
@@ -13,3 +13,5 @@
 - Forex e ouro ao vivo dependem de uma fonte de preço em tempo real. Sem ela, o Risk Engine recusa por dado velho.
 
 **Alternativa recusada:** três robôs separados, um por mercado.
+
+**Etapa futura, ainda não construída:** o dono quer avaliar um robô que opere a Quotex por uma API ou controlando a tela. Antes de construir, é preciso conferir os termos da corretora, medir o risco de bloqueio da conta e ter resultado comprovado nos sinais. Enquanto isso, nenhuma ordem real é enviada.

@@ -17,7 +17,7 @@ Essa matriz fica em configuração, e o código recusa o que estiver bloqueado. 
 ### Quotex
 
 - **Integração:** nenhuma API oficial foi encontrada. O site não pôde ser lido daqui, então os termos não foram conferidos diretamente. Fontes secundárias dizem que não há API pública, e [uma biblioteca não oficial cita uma mensagem atribuída à corretora](https://pypi.org/project/quotexpy/1.40.1) sobre bloqueio de contas por uso de robôs.
-- **Decisão:** o robô opera no simulado. Não há executor real, nem automação de navegador, engenharia reversa ou endpoints privados, até o dono autorizar uma integração.
+- **Decisão:** primordialmente sinais, apurados no simulado. Não há executor real, nem automação de navegador, engenharia reversa ou endpoints privados, até o dono autorizar uma integração.
 
 ### Binance Futuros
 

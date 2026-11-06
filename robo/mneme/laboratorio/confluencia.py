@@ -73,6 +73,7 @@ def por_pesos(sinais: pd.DataFrame, y: pd.Series, v: pd.DataFrame, expiracao: in
     """O modelo aprende, só no passado, quanto cada técnica vale, e opera só quando a soma dos sinais dá confiança acima do corte do passado."""
     validas = y.notna()
     x, y = sinais[validas].astype("float32"), y[validas]
+    x.columns = [f"t{i}" for i in range(x.shape[1])]  # o LightGBM recusa pontuação em nomes de coluna
     p = fora_da_amostra(criar, x, y, dobras_walk_forward(len(x), dobras, 1, embargo))
     dias = max(int(pd.Index(x.index[p.posicoes].floor("D")).nunique()), 1)
     saida = []

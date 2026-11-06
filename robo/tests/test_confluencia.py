@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from mneme.laboratorio.confluencia import _logistica, grade_de_sinais, pesos_aprendidos, por_pesos, por_votos
+from mneme.laboratorio.confluencia import _floresta, _logistica, grade_de_sinais, pesos_aprendidos, por_pesos, por_votos
 
 
 def _velas(n=20000, semente=0):
@@ -53,6 +53,12 @@ def test_pesos_acham_a_tecnica_boa_e_o_lado_da_ruim():
     assert pesos["A"] > 0.3 and pesos["B"] < -0.3 and abs(pesos["C"]) < pesos["A"] / 3
     r = por_pesos(s, y, v, 5, _logistica, fracoes=(0.2,))[0]
     assert r["acerto"] > 0.6 and r["ic95_dias"][0] > 0.55
+
+
+def test_arvores_aceitam_nomes_com_pontuacao():
+    s, y, v = _caso(True)
+    r = por_pesos(s.rename(columns={"A": "Bollinger: fora da banda"}), y, v, 5, _floresta, fracoes=(0.2,))
+    assert r and r[0]["acerto"] > 0.55
 
 
 def test_ruido_nao_vira_vantagem():

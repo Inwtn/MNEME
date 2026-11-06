@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from mneme.carteira import ESTRATEGIA_MODELO, Carteira, placar, sinais_do_modelo, ultima_vela_fechada
+from mneme.carteira_tecnicas import ESTRATEGIA_MODELO, Carteira, placar, sinais_do_modelo, ultima_vela_fechada
 from mneme.dados.armazem import ArmazemVelas
 from mneme.dados.eventos import ArmazemEventos
 

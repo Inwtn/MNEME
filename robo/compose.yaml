@@ -60,7 +60,7 @@ services:
   # Carteira virtual por técnica. Não envia ordem: grava o sinal antes do resultado.
   carteira:
     <<: *servico
-    command: [".venv/bin/python", "-m", "mneme.carteira", "rodar"]
+    command: [".venv/bin/python", "-m", "mneme.carteira_tecnicas", "rodar"]
     mem_limit: 800m
     cpus: 0.75
     cpu_shares: 256

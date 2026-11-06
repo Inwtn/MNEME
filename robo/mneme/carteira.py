@@ -1,0 +1,106 @@
+"""Carteira simulada: compra e vende ao preço de mercado com taxa e slippage, e controla a meta do dia."""
+
+from __future__ import annotations
+
+import json
+import sqlite3
+from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
+
+from .config import CARTEIRA_INICIAL_USD, SLIPPAGE, TAXA
+
+BRASILIA = timezone(timedelta(hours=-3))
+COMPRA_MINIMA_USD = 100.0
+
+
+def dia_brasilia(agora: datetime) -> str:
+    return agora.astimezone(BRASILIA).date().isoformat()
+
+
+@dataclass(frozen=True)
+class LimitesDia:
+    meta_pct: float | None
+    limite_perda_pct: float | None
+
+
+def bloqueio_do_dia(limites: LimitesDia, retorno_dia_pct: float) -> str | None:
+    """Motivo para não abrir compras hoje, ou None. As vendas nunca são bloqueadas."""
+    if limites.meta_pct and retorno_dia_pct >= limites.meta_pct:
+        return f"Meta do dia atingida ({retorno_dia_pct:.2f}% de {limites.meta_pct}%). Novas compras voltam à meia-noite de Brasília."
+    if limites.limite_perda_pct and retorno_dia_pct <= -limites.limite_perda_pct:
+        return f"Limite de perda do dia atingido ({retorno_dia_pct:.2f}%). Novas compras voltam à meia-noite de Brasília."
+    return None
+
+
+class Carteira:
+    def __init__(self, con: sqlite3.Connection, nome: str = "solana-seguir-traders"):
+        self.con = con
+        self.nome = nome
+        con.execute("INSERT OR IGNORE INTO carteiras (id, inicial_usd, caixa_usd) VALUES (?, ?, ?)",
+                    (nome, CARTEIRA_INICIAL_USD, CARTEIRA_INICIAL_USD))
+
+    def _linha(self) -> sqlite3.Row:
+        return self.con.execute("SELECT * FROM carteiras WHERE id = ?", (self.nome,)).fetchone()
+
+    def posicoes(self) -> list[sqlite3.Row]:
+        return self.con.execute("SELECT * FROM posicoes WHERE carteira = ?", (self.nome,)).fetchall()
+
+    def posicao(self, rede: str, token: str) -> sqlite3.Row | None:
+        return self.con.execute("SELECT * FROM posicoes WHERE carteira = ? AND rede = ? AND token = ?",
+                                (self.nome, rede, token)).fetchone()
+
+    def marcar(self, rede: str, token: str, preco: float) -> None:
+        self.con.execute("UPDATE posicoes SET preco_atual = ? WHERE carteira = ? AND rede = ? AND token = ?",
+                         (preco, self.nome, rede, token))
+
+    def patrimonio(self) -> float:
+        valor = sum(p["quantidade"] * (p["preco_atual"] or p["preco_entrada"]) for p in self.posicoes())
+        return self._linha()["caixa_usd"] + valor
+
+    def retorno_do_dia_pct(self, agora: datetime) -> float:
+        dia = dia_brasilia(agora)
+        atual = self.patrimonio()
+        self.con.execute("INSERT OR IGNORE INTO dias (carteira, dia, patrimonio_abertura) VALUES (?, ?, ?)", (self.nome, dia, atual))
+        abertura = self.con.execute("SELECT patrimonio_abertura FROM dias WHERE carteira = ? AND dia = ?",
+                                    (self.nome, dia)).fetchone()["patrimonio_abertura"]
+        return (atual / abertura - 1) * 100 if abertura else 0.0
+
+    def comprar(self, rede: str, token: str, simbolo: str, preco: float, tamanho_pct: float,
+                traders: list[str], motivo: str, agora: datetime) -> bool:
+        carteira = self._linha()
+        gasto = min(carteira["inicial_usd"] * tamanho_pct / 100, carteira["caixa_usd"] / (1 + TAXA))
+        if gasto < COMPRA_MINIMA_USD or self.posicao(rede, token):
+            return False
+        preco_pago = preco * (1 + SLIPPAGE)
+        quantidade = gasto / preco_pago
+        taxa = gasto * TAXA
+        custo = gasto + taxa
+        self.con.execute("UPDATE carteiras SET caixa_usd = caixa_usd - ?, taxas_usd = taxas_usd + ? WHERE id = ?",
+                         (custo, taxa, self.nome))
+        # O preço de entrada já inclui slippage e taxa, para o resultado da saída ser líquido.
+        self.con.execute("""INSERT INTO posicoes (carteira, rede, token, simbolo, quantidade, custo_usd, preco_entrada, preco_atual,
+            traders_entrada, aberta_em) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (self.nome, rede, token, simbolo, quantidade, custo, custo / quantidade, preco, json.dumps(traders), agora.isoformat()))
+        self._ordem("buy", rede, token, simbolo, quantidade, preco_pago, gasto, taxa, None, motivo, agora)
+        return True
+
+    def vender(self, rede: str, token: str, preco: float, motivo: str, agora: datetime) -> float | None:
+        """Vende a posição inteira e devolve o resultado em %, já líquido."""
+        posicao = self.posicao(rede, token)
+        if posicao is None:
+            return None
+        preco_recebido = preco * (1 - SLIPPAGE)
+        bruto = posicao["quantidade"] * preco_recebido
+        taxa = bruto * TAXA
+        liquido = bruto - taxa
+        resultado = liquido - posicao["custo_usd"]
+        self.con.execute("""UPDATE carteiras SET caixa_usd = caixa_usd + ?, realizado_usd = realizado_usd + ?,
+            taxas_usd = taxas_usd + ? WHERE id = ?""", (liquido, resultado, taxa, self.nome))
+        self.con.execute("DELETE FROM posicoes WHERE carteira = ? AND rede = ? AND token = ?", (self.nome, rede, token))
+        self._ordem("sell", rede, token, posicao["simbolo"], posicao["quantidade"], preco_recebido, bruto, taxa, resultado, motivo, agora)
+        return resultado / posicao["custo_usd"] * 100
+
+    def _ordem(self, lado, rede, token, simbolo, quantidade, preco, valor, taxa, resultado, motivo, agora) -> None:
+        self.con.execute("""INSERT INTO ordens (carteira, lado, rede, token, simbolo, quantidade, preco, valor_usd, taxa_usd,
+            resultado_usd, motivo, executada_em) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (self.nome, lado, rede, token, simbolo, quantidade, preco, valor, taxa, resultado, motivo, agora.isoformat()))

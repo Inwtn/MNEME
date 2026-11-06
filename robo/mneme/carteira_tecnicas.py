@@ -3,8 +3,8 @@
 A hora de chegada prova que o sinal existia antes do resultado. O saldo é calculado na hora do placar, a partir dos sinais e das velas, com uma operação de cada vez,
 entrada na abertura seguinte e payout suposto. Saldo em unidades de aposta: +0,85 quando ganha e -1 quando perde.
 
-    python -m mneme.carteira rodar
-    python -m mneme.carteira placar --payout 0.85
+    python -m mneme.carteira_tecnicas rodar
+    python -m mneme.carteira_tecnicas placar --payout 0.85
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ from .laboratorio.horizontes import retorno_da_operacao, uma_por_vez
 from .laboratorio.tecnicas import NOMES, todas_as_tecnicas
 from .laboratorio.validacao import intervalo_wilson
 
-log = logging.getLogger("mneme.carteira")
+log = logging.getLogger("mneme.carteira_tecnicas")
 
 TEMPOS = {"5min": 5, "15min": 15}  # o tempo gráfico é também a duração da operação
 DIAS_DE_JANELA = {"5min": 12, "15min": 30}
@@ -158,7 +158,7 @@ def placar(raiz: Path | str, pares: list[str], payout: float = 0.85) -> list[dic
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s", datefmt="%H:%M:%S")
     logging.getLogger("httpx").setLevel(logging.WARNING)
-    parser = argparse.ArgumentParser(prog="mneme.carteira")
+    parser = argparse.ArgumentParser(prog="mneme.carteira_tecnicas")
     parser.add_argument("comando", choices=["rodar", "placar"])
     parser.add_argument("--raiz", default=os.getenv("MNEME_DADOS_MERCADO", str(PASTA_DADOS / "mercado")))
     parser.add_argument("--pares", default=os.getenv("MNEME_PARES_VELAS", "BTCUSDT,ETHUSDT,SOLUSDT"))

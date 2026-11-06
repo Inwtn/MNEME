@@ -32,6 +32,7 @@ O MNEME é **uma inteligência artificial financeira híbrida (ML, Deep Learning
 - **Taxa de acerto é medida**, nunca suposta: pelas operações encerradas de cada trader e pelos resultados de cada sinal ou operação do robô.
 - **Seguir traders**: entra quando a maioria dos traders de alto acerto compra e sai quando a maioria dos que formaram a entrada vende. Nessa estratégia não existe alvo, stop ou tempo fixo. Outras estratégias (modelos de velas) podem ter tempo de saída próprio quando o modelo é treinado para isso.
 - **Nada de treinar um modelo de linguagem do zero.** Use um modelo pronto, hoje local (ADR-0012), com RAG; os modelos próprios são os de previsão (velas, métricas, traders).
+- **Skills:** o que está instalado e por quê fica em `docs/skills/SKILL_CATALOG.md`. Skill não redefine o produto, e skill nova segue `docs/skills/SKILL_INTEGRATION_PLAN.md`.
 - **Objetivo não é estado atual.** O que ainda não existe continua no escopo: confira a tabela em `docs/PRODUCT_CHARTER.md` antes de dizer que algo não faz parte do produto.
 - **Custo zero por enquanto**: não adicione serviço pago sem pedido do dono.
 

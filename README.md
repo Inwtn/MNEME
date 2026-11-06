@@ -138,7 +138,7 @@ O sistema tem **dois caminhos separados**. O caminho rápido calcula, decide e p
 
 | | |
 |---:|---|
-| **618** | testes automatizados, 484 no robô em Python e 134 no site e no Worker |
+| **636** | testes automatizados, 502 no robô em Python e 134 no site e no Worker |
 | **~3 milhões** | de velas de 1 minuto armazenadas em 152 MB de Parquet |
 | **0,2 s** | do fechamento da vela até a gravação, em coleta ao vivo |
 | **3e-8** | de erro relativo máximo nos indicadores, comparados ao TA-Lib em dados reais |

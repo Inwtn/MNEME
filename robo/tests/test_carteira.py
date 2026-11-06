@@ -100,6 +100,20 @@ def test_saldo_em_unidades_e_uma_operacao_de_cada_vez(tmp_path, monkeypatch):
     assert r[0]["saldo_unidades"] == pytest.approx(-0.15)
 
 
+def test_ninguem_entra_antes_de_o_sinal_existir(tmp_path, monkeypatch):
+    t = pd.date_range(INICIO, periods=60, freq="1min", tz="UTC", name="abertura_em")
+    f = np.full(60, 100.0)
+    f[11:] = 110.0  # o preço salta na vela seguinte ao sinal e depois para
+    a = np.concatenate([[100.0], f[:-1]])
+    v = pd.DataFrame({"abertura": a, "maxima": np.maximum(a, f), "minima": np.minimum(a, f), "fechamento": f, "volume": 1.0}, index=t)
+    monkeypatch.setattr(ArmazemVelas, "ler", lambda self, par, inicio=None, fim=None, como_de=None: v)
+    no_tempo, tarde = tmp_path / "a", tmp_path / "b"
+    ArmazemEventos(no_tempo).gravar("carteira", "ETHUSDT", [{"estrategia": "A", "tempo": "5min", "expiracao": 5, "direcao": 1, "ocorrido_em": t[10], "recebido_em": t[11]}])
+    ArmazemEventos(tarde).gravar("carteira", "ETHUSDT", [{"estrategia": "A", "tempo": "5min", "expiracao": 5, "direcao": 1, "ocorrido_em": t[10], "recebido_em": t[11] + pd.Timedelta(seconds=51)}])
+    assert placar(no_tempo, ["ETHUSDT"])[0]["ganhos"] == 1
+    assert placar(tarde, ["ETHUSDT"])[0]["operacoes"] == 0  # chegou depois do salto: entrou a 110 e saiu a 110, empate não conta
+
+
 def test_operacao_ainda_aberta_nao_conta_no_saldo(tmp_path, monkeypatch):
     t = pd.date_range(INICIO, periods=40, freq="1min", tz="UTC", name="abertura_em")
     f = 100 + 0.1 * np.arange(40)
@@ -113,7 +127,8 @@ def test_operacao_ainda_aberta_nao_conta_no_saldo(tmp_path, monkeypatch):
 def test_modelo_so_opera_com_corte_do_passado():
     g = np.random.default_rng(0)
     n = 400
-    p = pd.DataFrame({"modelo": "M", "horizonte": 15, "ocorrido_em": pd.date_range(INICIO, periods=n, freq="15min", tz="UTC"), "prob_sobe": 0.5 + g.uniform(-0.1, 0.1, n), "direcao": 1})
+    tempos = pd.date_range(INICIO, periods=n, freq="15min", tz="UTC")
+    p = pd.DataFrame({"modelo": "M", "horizonte": 15, "ocorrido_em": tempos, "recebido_em": tempos + pd.Timedelta(minutes=1), "prob_sobe": 0.5 + g.uniform(-0.1, 0.1, n), "direcao": 1})
     s = sinais_do_modelo(p)
     assert s["ocorrido_em"].min() >= p["ocorrido_em"].iloc[100]  # antes disso não existe passado
     assert 0.1 < len(s) / 300 < 0.35 and (s["estrategia"] == ESTRATEGIA_MODELO).all()

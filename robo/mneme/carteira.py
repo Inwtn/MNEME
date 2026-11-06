@@ -91,8 +91,22 @@ def sinais_do_modelo(previsoes: pd.DataFrame, fracao: float = FRACAO_CONFIANTE, 
         confianca = (g["prob_sobe"] - 0.5).abs()
         corte = confianca.expanding(minimo).quantile(1 - fracao).shift(1)
         selecionadas = g[confianca >= corte]
-        partes.append(pd.DataFrame({"estrategia": ESTRATEGIA_MODELO, "tempo": f"{int(horizonte)}min", "expiracao": int(horizonte), "direcao": selecionadas["direcao"].astype(int), "ocorrido_em": selecionadas["ocorrido_em"]}))
-    return pd.concat(partes, ignore_index=True) if partes else pd.DataFrame(columns=["estrategia", "tempo", "expiracao", "direcao", "ocorrido_em"])
+        partes.append(pd.DataFrame({"estrategia": ESTRATEGIA_MODELO, "tempo": f"{int(horizonte)}min", "expiracao": int(horizonte), "direcao": selecionadas["direcao"].astype(int), "ocorrido_em": selecionadas["ocorrido_em"], "recebido_em": selecionadas["recebido_em"]}))
+    return pd.concat(partes, ignore_index=True) if partes else pd.DataFrame(columns=["estrategia", "tempo", "expiracao", "direcao", "ocorrido_em", "recebido_em"])
+
+
+def atraso_real(vela: pd.DatetimeIndex, recebido: pd.DatetimeIndex) -> np.ndarray:
+    """Minutos entre a abertura logo após a vela e a primeira abertura depois de o sinal existir. Ninguém entra antes de decidir."""
+    primeira = vela.as_unit("ns").asi8 + 60_000_000_000
+    return np.maximum(0, np.ceil((recebido.as_unit("ns").asi8 - primeira) / 60_000_000_000)).astype(int)
+
+
+def _resultado(v: pd.DataFrame, t: pd.DatetimeIndex, direcao: np.ndarray, atrasos: np.ndarray, expiracao: int) -> np.ndarray:
+    r = np.full(len(t), np.nan)
+    for a in np.unique(atrasos):
+        m = atrasos == a
+        r[m] = retorno_da_operacao(v, t[m], int(a), expiracao) * direcao[m]
+    return r
 
 
 def placar(raiz: Path | str, pares: list[str], payout: float = 0.85) -> list[dict]:
@@ -102,7 +116,7 @@ def placar(raiz: Path | str, pares: list[str], payout: float = 0.85) -> list[dic
     for par in pares:
         sinais = eventos.ler("carteira", par)
         previsoes = eventos.ler("previsoes", par)
-        tabela = pd.concat([sinais[sinais["direcao"] != 0][["estrategia", "tempo", "expiracao", "direcao", "ocorrido_em"]] if not sinais.empty else pd.DataFrame(), sinais_do_modelo(previsoes) if not previsoes.empty else pd.DataFrame()], ignore_index=True)
+        tabela = pd.concat([sinais[sinais["direcao"] != 0][["estrategia", "tempo", "expiracao", "direcao", "ocorrido_em", "recebido_em"]] if not sinais.empty else pd.DataFrame(), sinais_do_modelo(previsoes) if not previsoes.empty else pd.DataFrame()], ignore_index=True)
         if tabela.empty:
             continue
         v = velas.ler(par, inicio=tabela["ocorrido_em"].min().to_pydatetime())
@@ -111,8 +125,9 @@ def placar(raiz: Path | str, pares: list[str], payout: float = 0.85) -> list[dic
             tempos = pd.DatetimeIndex(g["ocorrido_em"])
             aceitos = uma_por_vez(tempos, 0, int(expiracao))
             t, direcao = tempos[aceitos], g["direcao"].to_numpy()[aceitos]
-            r = retorno_da_operacao(v, t, 0, int(expiracao)) * direcao
-            atrasado = retorno_da_operacao(v, t, 1, int(expiracao)) * direcao
+            atrasos = atraso_real(t, pd.DatetimeIndex(g["recebido_em"])[aceitos])
+            r = _resultado(v, t, direcao, atrasos, int(expiracao))
+            atrasado = _resultado(v, t, direcao, atrasos + 1, int(expiracao))
             abertas = int(np.isnan(r).sum())
             validas = ~np.isnan(r) & (r != 0)
             n, certas = int(validas.sum()), int((r[validas] > 0).sum())

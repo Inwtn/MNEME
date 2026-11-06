@@ -21,7 +21,7 @@ A intenção é aproveitar o que a comunidade já fez. Popularidade não é prov
 1. Ache o autor original, e não o agregador.
 2. Baixe como dado, sem executar. Leia o SKILL.md e procure rede, chaves e subprocessos nos scripts.
 3. Copie a pasta para `.claude/skills/`, com `LICENSE` e `ORIGEM.txt`, e libere o nome no `.gitignore`.
-4. Adicione ao [catálogo](SKILL_CATALOG.md) e à lista de `robo/tests/test_skills.py`.
+4. Adicione ao [catálogo](SKILL_CATALOG.md), à lista de `robo/tests/test_skills.py` e à tabela de uso do `AGENTS.md`.
 5. Rode a suíte completa, seguindo `mneme-verificacao`, e faça um commit separado.
 
 Scripts de terceiros usam API pública com chave opcional, e essa chave fica só no `.env`. Antes de um script virar parte do robô, ele precisa de teste próprio.

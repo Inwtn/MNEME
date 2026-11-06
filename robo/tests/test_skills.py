@@ -95,3 +95,13 @@ def test_original_nao_pede_chave_privada_nem_passa_por_cima_das_regras(nome):
         pytest.skip(f"{nome} não veio nesta cópia")
     texto = "\n".join(a.read_text(encoding="utf-8", errors="ignore").lower() for a in pasta.rglob("*") if a.is_file())
     assert "private_key" not in texto and "keypair" not in texto and "ignore previous" not in texto
+
+
+def test_regra_de_uso_cobre_todas_as_skills_e_so_elas():
+    agents = RAIZ / "AGENTS.md"
+    if not agents.exists() or not SKILLS.exists():
+        pytest.skip("AGENTS.md ou as skills não vieram nesta cópia")
+    secao = agents.read_text(encoding="utf-8").split("## Skills: qual usar em cada tarefa")[1].split("\n## ")[0]
+    citadas = set(re.findall(r"`([a-z-]+)`", "\n".join(l for l in secao.splitlines() if l.startswith("| "))))
+    instaladas = {p.name for p in PASTAS} | {n for n in ORIGINAIS if (SKILLS / n).exists()}
+    assert citadas == instaladas

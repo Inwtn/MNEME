@@ -32,7 +32,7 @@ O MNEME é **uma inteligência artificial financeira híbrida (ML, Deep Learning
 - **Taxa de acerto é medida**, nunca suposta: pelas operações encerradas de cada trader e pelos resultados de cada sinal ou operação do robô.
 - **Seguir traders**: entra quando a maioria dos traders de alto acerto compra e sai quando a maioria dos que formaram a entrada vende. Nessa estratégia não existe alvo, stop ou tempo fixo. Outras estratégias (modelos de velas) podem ter tempo de saída próprio quando o modelo é treinado para isso.
 - **Nada de treinar um modelo de linguagem do zero.** Use um modelo pronto, hoje local (ADR-0012), com RAG; os modelos próprios são os de previsão (velas, métricas, traders).
-- **Skills:** o que está instalado e por quê fica em `docs/skills/SKILL_CATALOG.md`. Skill não redefine o produto, e skill nova segue `docs/skills/SKILL_INTEGRATION_PLAN.md`.
+- **Skills:** a regra de uso está na seção "Skills" abaixo, e o que está instalado, em `docs/skills/SKILL_CATALOG.md`. Skill não redefine o produto.
 - **Objetivo não é estado atual.** O que ainda não existe continua no escopo: confira a tabela em `docs/PRODUCT_CHARTER.md` antes de dizer que algo não faz parte do produto.
 - **Custo zero por enquanto**: não adicione serviço pago sem pedido do dono.
 
@@ -70,6 +70,28 @@ Antes de ler arquivos para implementar, antes de propor um plano e antes de escr
 O mesmo vale quando, no meio de uma tarefa dentro da visão, você perceber que a solução exige algo fora dela: pare e avise antes de seguir. E se, ao mexer num arquivo, você encontrar código que já contraria a visão, avise a pessoa e não o amplie.
 
 Na dúvida, avise. Um aviso a mais custa uma frase; uma funcionalidade fora da visão custa dias de retrabalho.
+
+## Skills: qual usar em cada tarefa
+
+Vale para toda IA neste repositório. Antes de começar a tarefa, use a skill da tabela. Se a ferramenta não listar skills, ou a lista estiver desatualizada, leia `.claude/skills/<nome>/SKILL.md` e siga. Se uma skill conflitar com o `docs/PRODUCT_CHARTER.md` ou com as regras deste arquivo, vale o Charter e este arquivo. Ao relatar, diga qual skill usou.
+
+| Tarefa | Skill |
+|---|---|
+| Antes de dizer que terminou, de fazer commit ou de entregar | `mneme-verificacao` |
+| Bug, teste falhando ou comportamento inesperado | `systematic-debugging` |
+| Implementar funcionalidade ou correção no robô | `test-driven-development` |
+| Criar, revisar ou relatar backtest, modelo ou estratégia | `mneme-auditoria-backtest` e `backtest-expert` |
+| Decisão importante de arquitetura ou de estratégia | `doubt-driven-development` |
+| Diário, revisão de operações e atribuição por estratégia | `trade-journal` |
+| Regimes de mercado | `regime-detection` |
+| Fluxo de ordens e pressão de compra e venda | `market-microstructure` |
+| Custo de execução e tamanho da operação em DEX | `slippage-modeling` |
+| Solana, grandes carteiras e sinais on-chain | `whale-tracking` |
+| Logs, métricas e alertas | `observability-and-instrumentation` |
+| Ligar fonte externa, LLM, MCP ou skill externa | `mneme-revisao-injecao` |
+| Sessão longa, troca de tarefa ou queda de qualidade do agente | `context-engineering` |
+
+Skills de cripto e ações ensinam método. Antes de valer para Forex, ouro ou expiração fixa, o resultado precisa ser medido nessa modalidade. Scripts de skills de terceiros só rodam quando a tarefa pedir, sem chave privada e sem enviar ordem. Skill nova segue `docs/skills/SKILL_INTEGRATION_PLAN.md`.
 
 ## Repositório público
 

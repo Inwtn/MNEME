@@ -28,7 +28,7 @@ def test_classe(nome, classe):
 
 
 RESPOSTA = {"data": {"rows": [
-    {"gmt": "13:30", "country": "United States", "eventName": "CPI", "actual": "2.8%", "consensus": "3.0%", "previous": "3.1%"},
+    {"gmt": "08:30", "country": "United States", "eventName": "CPI", "actual": "2.8%", "consensus": "3.0%", "previous": "3.1%"},
     {"gmt": "24H", "country": "Japan", "eventName": "Sem hora", "actual": "1", "consensus": "1", "previous": "1"},
     {"gmt": "09:00", "country": "Germany", "eventName": "German CPI", "actual": "", "consensus": "2%", "previous": "&nbsp;"}]}}
 
@@ -41,6 +41,18 @@ def test_le_o_dia_com_consenso_e_resultado():
     assert us["ocorrido_em"] == pd.Timestamp("2026-11-05 13:30", tz="UTC")
     de = next(l for l in linhas if l["pais"] == "Germany")
     assert de["resultado"] is None and de["classe"] is None  # só eventos americanos entram no recorte
+
+
+@pytest.mark.parametrize("dia,hora,utc", [
+    (date(2026, 7, 14), "07:30", "2026-07-14 12:30"),  # CPI no horário de verão de Nova York
+    (date(2026, 11, 11), "08:30", "2026-11-11 13:30"),  # CPI no horário de inverno
+    (date(2026, 7, 29), "13:00", "2026-07-29 18:00"),  # FOMC no verão
+    (date(2026, 12, 9), "14:00", "2026-12-09 19:00"),  # FOMC no inverno
+    (date(2026, 11, 5), "21:00", "2026-11-06 02:00"),  # à noite, já é o dia seguinte em UTC
+])
+def test_horario_da_fonte_vira_utc(dia, hora, utc):
+    corpo = {"data": {"rows": [{"gmt": hora, "country": "United States", "eventName": "CPI", "actual": "", "consensus": "", "previous": ""}]}}
+    assert ler_dia(corpo, dia, None)[0]["ocorrido_em"] == pd.Timestamp(utc, tz="UTC")
 
 
 def test_fonte_chama_a_data_certa_e_periodo_sobrevive_a_falha():

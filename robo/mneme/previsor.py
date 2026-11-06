@@ -142,7 +142,7 @@ def placar(raiz: Path | str, pares: list[str]) -> list[dict]:
                 certas += variacao > 0
                 erradas += variacao < 0
                 empates += variacao == 0
-            n = certas + erradas
+            n = int(certas + erradas)
             resultado.append({"par": par, "modelo": modelo, "horizonte": int(horizonte), "previsoes": len(grupo), "conferidas": n, "certas": int(certas),
                               "acerto": certas / n if n else None, "limite_inferior": intervalo_wilson(int(certas), n)[0] if n else None,
                               "empates": int(empates), "abertas": abertas})

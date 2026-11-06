@@ -24,6 +24,8 @@ EVENTOS_CHAVE = {
     "pedidos_desemprego": r"(initial )?jobless claims", "juros_fed": r"fed(eral)? (funds|interest)|fomc.*(rate|decision)|interest rate decision", "pib": r"\bgdp\b", "varejo": r"retail sales", "ism": r"\bism\b",
 }
 _MULTIPLOS = {"K": 1e3, "M": 1e6, "B": 1e9, "T": 1e12}
+# O campo se chama "gmt", mas traz UTC-5 fixo, sem horário de verão. O CPI, às 8h30 de Nova York, vem 07:30 no verão e 08:30 no inverno.
+DESLOCAMENTO_DA_FONTE = pd.Timedelta(hours=5)
 
 
 def numero(texto: str | None) -> float | None:
@@ -51,7 +53,7 @@ def ler_dia(corpo: dict, dia: date, agora: datetime | None) -> list[dict]:
         hora = str(r.get("gmt") or "").strip()
         if not re.fullmatch(r"\d{1,2}:\d{2}", hora):
             continue
-        quando = pd.Timestamp(f"{dia.isoformat()} {hora}", tz="UTC")
+        quando = pd.Timestamp(f"{dia.isoformat()} {hora}", tz="UTC") + DESLOCAMENTO_DA_FONTE
         pais, nome = limpo(r.get("country")), limpo(r.get("eventName"))
         saida.append({"id": hashlib.sha256(f"{pais}|{nome}|{quando.isoformat()}".encode()).hexdigest()[:16], "ocorrido_em": quando, "recebido_em": agora, "pais": pais, "nome": nome,
                       "classe": classe_do_evento(nome) if pais == "United States" else None, "resultado": numero(r.get("actual")), "consenso": numero(r.get("consensus")), "anterior": numero(r.get("previous"))})

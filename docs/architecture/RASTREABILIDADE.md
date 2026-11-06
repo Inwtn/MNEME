@@ -16,7 +16,7 @@ Estado real em 05/11/2026, verificado na máquina e no código. Código existent
 | Open interest | Sim | Sim; histórico de 29 dias | **Não** | Parcial | Atributos |
 | Liquidações | Sim | Conectado, sem evento recebido | **Não** | **Não** | Confirmar com evento real |
 | Calendário: FOMC | Sim | Sim, 57 reuniões | **Sim** | Sim: datas e fuso conferidos | |
-| Calendário: agenda, consenso, resultado, revisões e surpresa | Sim | Sim: lê 7 dias à frente, cada mudança vira versão | **Sim**, família `e_` | Parcial: teste sintético; ganho real em medição | Termos de uso da fonte (pendência externa) |
+| Calendário: agenda, consenso, resultado, revisões e surpresa | Sim | Sim: lê 7 dias à frente, cada mudança vira versão | **Sim**, família `e_` | Sim: horários conferidos com CPI e FOMC, 30 mil eventos em 24 meses | Termos de uso da fonte (pendência externa) |
 | Notícias (10 fontes por RSS) | Sim | Sim, desde 05/11 | **Ligada, sem histórico**: colunas `n_` vazias antes da coleta | Parcial: fluxo testado, classificação sem amostra rotulada | Acumular meses para poder medir; classificação medida |
 | X (API oficial) | Sim, com teto de gasto | **Não: sem credencial** | **Não** | Só com dados simulados | Credencial e orçamento; tendências |
 | Provedor de sinais (traders) | Sim | Só no Mac | **Não** | Parcial | Migrar o robô |
@@ -75,7 +75,7 @@ Estado real em 05/11/2026, verificado na máquina e no código. Código existent
 | Backtest | 54 combinações de setups em opção digital e 54 em spot; nenhuma aprovada |
 | Fora da amostra | Modelos com walk-forward, purga e embargo; corte de seleção só com o passado, depois da correção |
 | Área selada (desde 01/08/2026) | **Nenhuma hipótese aberta**: nada mereceu o teste final. Estudos anteriores à criação da área tocaram esses meses |
-| Ao vivo, sem operar | Previsões gravadas desde 05/11/2026; amostra ainda sem valor estatístico |
+| Ao vivo, sem operar | Previsões gravadas desde 05/11/2026; placar funcionando (cerca de 60 por modelo de 15 min), amostra ainda sem valor estatístico |
 | Paper trading dos novos modelos | **Nenhum** |
 
 ## Medições que mudaram conclusões
@@ -85,4 +85,6 @@ Estado real em 05/11/2026, verificado na máquina e no código. Código existent
 - **Direção:** existe sinal acima do acaso, com AUC próximo de 0,53. No geral fica abaixo do que o payout exige.
 - **Confiantes (candidato, não aprovado):** com corte só do passado e empate em 54,05%, ETH 15 min dá 57,19% (n = 6.036; intervalo por dias de 55,91% a 58,52%; 6 de 6 trimestres; 56,33% com 1 minuto de atraso). ETH 5 min dá 56,21% e BTC 15 min, 56,19%; os outros seis casos não passam. Sem vazamento ao esconder o futuro em dados reais; rótulo embaralhado cai para 48,88%. 91% desses sinais vão contra os últimos 15 minutos: é principalmente **reversão após movimento forte**. Falta a área selada, o preço e o payout reais da corretora.
 - **Combinações:** juntar metodologias não melhorou nenhuma medição. O efeito individual mais estável é RSI extremo, perto de 55% nos três pares, também reversão. Rompimentos acertam só de 43% a 44% (hipótese nova, ainda não testada: operar contra eles).
+- **Calendário:** o movimento nos 15 minutos após indicadores americanos é de 14% a 18% maior que no mesmo horário sem evento. A surpresa não previu direção: nenhuma relação significativa após a correção, com poucos eventos (13 CPI, 26 payroll). Somar a agenda à previsão de volatilidade não trouxe ganho demonstrado: de -0,14% a +0,12% no geral, com intervalo incluindo zero. Limite: há só cerca de 200 amostras com evento à frente, no mesmo nível do mínimo por folha do modelo, então esse teste tem pouca força na janela do evento.
+- **Fuso corrigido:** o campo de hora da fonte traz UTC-5 fixo, e não GMT. Os eventos ficaram 5 horas adiantados até a correção. Registros `reacao_macro` e `agenda_volatilidade` anteriores ao commit 649f459 não valem.
 - **Volatilidade:** é o que os dados preveem melhor. Serve para filtrar momentos, dimensionar risco e escolher quando não operar.

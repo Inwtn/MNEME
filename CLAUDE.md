@@ -1,0 +1,2 @@
+@docs/PRODUCT_CHARTER.md
+@AGENTS.md

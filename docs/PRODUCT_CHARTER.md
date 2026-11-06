@@ -145,5 +145,6 @@ Estado verificado no código e no servidor em 06/11/2026. Funcionar não quer di
 | Correlacionar eventos externos com preços (geopolítica, eleições) | **Não implementado**: só o estudo de reação a eventos macro |
 | LLM formulando hipóteses, analisando operações e propondo melhorias | **Não implementado** |
 | LangGraph | **Não implementado** |
+| Knowledge Vault navegável no Obsidian, com histórico, natureza das notas e backup | **Funciona**: gerado do laboratório e indexado no RAG. A LLM ainda não propõe hipóteses sozinha |
 | Deep Learning | **Não implementado** |
 | Ciclo automático de evolução, com comparação de versões | **Não implementado**: hoje o treino é disparado à mão |

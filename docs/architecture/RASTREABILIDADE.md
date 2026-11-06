@@ -35,6 +35,7 @@ Estado real em 05/11/2026, com as linhas de Forex, ouro e do motor atualizadas e
 | Fontes externas de conhecimento | Sim: arXiv, ChartSchool, documentos locais | Pela biblioteca | Investopedia e SSRN bloqueados, não contornados | Ampliar o limite de 150 páginas |
 | LLM local | Sim: leitor de notícias com contexto assíncrono | Só registrado no diário | Sentimento melhor que a regra em 48 notícias; respostas sobre técnicas falham na conferência | Medir utilidade; corrigir respostas |
 | LangGraph | **Não** | Não | Não | Integração |
+| Knowledge Vault ([VAULT.md](../VAULT.md)) | Sim | Sim, a cada 10 min, desde 06/11 | Pelo RAG | Testes de ponta a ponta; backup restaurado | Abrir no Obsidian; reinício real da VM; cópia fora da VM |
 
 ## Técnicas
 

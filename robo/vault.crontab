@@ -1,0 +1,3 @@
+# MNEME Knowledge Vault: fora do caminho crítico, com prioridade mínima de CPU e disco. Uma trava impede dois ciclos ao mesmo tempo.
+*/10 * * * * cd $HOME/mneme/robo && PYTHONPATH=. nice -n 15 ionice -c3 .venv/bin/python -W ignore -m mneme.vault ciclo >> dados/vault/cron.log 2>&1
+@reboot sleep 180 && cd $HOME/mneme/robo && PYTHONPATH=. nice -n 15 ionice -c3 .venv/bin/python -W ignore -m mneme.vault ciclo >> dados/vault/cron.log 2>&1

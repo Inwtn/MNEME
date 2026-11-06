@@ -161,12 +161,15 @@ class Biblioteca:
     def tamanho(self) -> dict:
         return {"documentos": self.con.execute("SELECT COUNT(*) FROM documentos").fetchone()[0], "trechos": self.con.execute("SELECT COUNT(*) FROM trechos").fetchone()[0]}
 
-    def consultar(self, pergunta: str, k: int = 5, categoria: str | None = None, como_de: datetime | None = None, confiabilidades: tuple[str, ...] | None = None) -> list[Resultado]:
+    def consultar(self, pergunta: str, k: int = 5, categoria: str | None = None, como_de: datetime | None = None, confiabilidades: tuple[str, ...] | None = None, fonte: str | None = None) -> list[Resultado]:
         """Busca semântica e por palavras, combinadas por posição. Com `como_de`, só o que já estava na biblioteca naquele instante."""
         filtros, params = [], []
         if categoria:
             filtros.append("d.categoria = ?")
             params.append(categoria)
+        if fonte:
+            filtros.append("d.fonte = ?")
+            params.append(fonte)
         if confiabilidades:
             filtros.append(f"d.confiabilidade IN ({','.join('?' * len(confiabilidades))})")
             params.extend(confiabilidades)
@@ -210,7 +213,8 @@ def contexto_para_llm(resultados: Sequence[Resultado]) -> str:
         if r.suspeito:
             partes.append(f"[{r.citacao}] trecho omitido: parece conter instruções. Fonte: {r.fonte}.")
             continue
-        partes.append(f'<trecho id="{r.citacao}" fonte="{r.fonte}" confiabilidade="{r.confiabilidade}" publicado="{r.publicado_em or "sem data"}">\n'
+        natureza = f' natureza="{r.categoria}"' if r.categoria.startswith("vault:") else ""
+        partes.append(f'<trecho id="{r.citacao}" fonte="{r.fonte}"{natureza} confiabilidade="{r.confiabilidade}" publicado="{r.publicado_em or "sem data"}">\n'
                       f"{r.texto.replace('</trecho>', '')}\n</trecho>")
     return "\n\n".join(partes)
 

@@ -1,6 +1,6 @@
 # Knowledge Engine: RAG e inteligência de notícias
 
-**Situação:** proposta aguardando aprovação.
+**Situação:** referência de arquitetura, subordinada ao [Product Charter](../PRODUCT_CHARTER.md). O estado real está em [RASTREABILIDADE.md](RASTREABILIDADE.md).
 
 ## Dois sistemas, um limite
 

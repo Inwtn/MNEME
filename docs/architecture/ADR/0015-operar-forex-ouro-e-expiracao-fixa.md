@@ -8,10 +8,10 @@
 
 **Consequências:**
 
-- O simulado funciona hoje com preço de referência e payout e custos declarados como hipótese até serem medidos.
+- Forex e ouro operam como numa corretora, com compra e venda; expiração fixa é outra modalidade. O simulado funciona hoje com preço de referência e payout e custos declarados como hipótese até serem medidos.
 - A execução real na Quotex continua sem caminho: nenhuma API oficial foi encontrada. Abrir esse caminho exige uma nova decisão do dono, com os termos da corretora conferidos.
 - Forex e ouro ao vivo dependem de uma fonte de preço em tempo real. Sem ela, o Risk Engine recusa por dado velho.
 
 **Alternativa recusada:** três robôs separados, um por mercado.
 
-**Etapa futura, ainda não construída:** o dono quer avaliar um robô que opere a Quotex por uma API ou controlando a tela. Antes de construir, é preciso conferir os termos da corretora, medir o risco de bloqueio da conta e ter resultado comprovado nos sinais. Enquanto isso, nenhuma ordem real é enviada.
+**Etapa futura, ainda não construída:** primeiro sinais; depois, se for possível, o robô opera a Quotex por uma API ou controlando a tela. Antes de construir, é preciso conferir os termos da corretora, medir o risco de bloqueio da conta e ter resultado comprovado nos sinais. Enquanto isso, nenhuma ordem real é enviada.

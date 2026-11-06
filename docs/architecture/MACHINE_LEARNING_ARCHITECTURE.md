@@ -1,6 +1,6 @@
 # Arquitetura de machine learning
 
-**Situação:** proposta aguardando aprovação.
+**Situação:** referência de arquitetura, subordinada ao [Product Charter](../PRODUCT_CHARTER.md). O estado real está em [RASTREABILIDADE.md](RASTREABILIDADE.md).
 
 ## Ponto de partida honesto
 
@@ -135,7 +135,7 @@ Os valores abaixo são propostas para o dono aprovar. Depois de aprovados, ficam
 | Solana | Taxa de rede + slippage pela profundidade e pelo tamanho, cotado antes de executar. Com o fixo atual (0,5% + 0,1% por ponta), são cerca de 1,21% por operação completa |
 | Binance Spot | Taxa de maker ou taker da conta + spread + impacto pelo livro |
 | Opções digitais | Payout real do ativo e do prazo, no momento do sinal |
-| Binance Futuros | Só atributo: sem execução, sem custo a simular |
+| Futuros | Hoje só atributo; execução travada até decisão do dono |
 
 ## Onde treinar
 

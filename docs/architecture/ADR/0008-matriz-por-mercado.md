@@ -17,6 +17,6 @@ Cada célula é imposta em código. Cada mercado tem modelos, custos, métricas 
 
 **Atualização:** a [ADR-0015](0015-operar-forex-ouro-e-expiracao-fixa.md) passou a operação simulada de Forex, ouro e expiração fixa para o escopo.
 
-**Consequências:** o robô não opera na Quotex, salvo se surgir uma API oficial, o que exigirá novo ADR. Os sinais são medidos em fonte de referência, não na plataforma.
+**Consequências originais, substituídas pela ADR-0015:** o robô não opera na Quotex, salvo se surgir uma API oficial, o que exigirá novo ADR. Os sinais são medidos em fonte de referência, não na plataforma.
 
 **Alternativa recusada:** automação de navegador ou endpoints privados, excluída pelo próprio pedido e com risco de bloqueio da conta.

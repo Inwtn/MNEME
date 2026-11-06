@@ -1,6 +1,6 @@
 # Registros de decisão de arquitetura
 
-Todas as decisões abaixo estão **propostas**, aguardando aprovação. Para mudar uma decisão aceita, crie outro ADR que a substitua, sem apagar o anterior.
+Estas decisões são subordinadas ao [Product Charter](../../PRODUCT_CHARTER.md). A 0015 foi aceita pelo dono; as outras seguem como propostas, salvo quando indicado. Para mudar uma decisão aceita, crie outro ADR que a substitua, sem apagar o anterior.
 
 | ADR | Decisão |
 |---|---|

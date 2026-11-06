@@ -1,6 +1,6 @@
 # Visão geral do sistema
 
-**Situação:** proposta aguardando aprovação. Nada aqui está implementado, salvo quando indicado.
+**Situação:** arquitetura em implantação. O objetivo está em [PRODUCT_CHARTER.md](../PRODUCT_CHARTER.md), e o estado real em [RASTREABILIDADE.md](RASTREABILIDADE.md).
 
 ## 1. Objetivo
 

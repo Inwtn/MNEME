@@ -1,6 +1,6 @@
 # Arquitetura multiagente
 
-**Situação:** proposta aguardando aprovação.
+**Situação:** referência de arquitetura, subordinada ao [Product Charter](../PRODUCT_CHARTER.md). O estado real está em [RASTREABILIDADE.md](RASTREABILIDADE.md).
 
 ## Regra central
 

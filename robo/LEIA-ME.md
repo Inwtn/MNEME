@@ -1,10 +1,10 @@
 # Robô MNEME (Python)
 
-O robô que aprende com o mercado e opera **no simulado** antes de qualquer dinheiro real.
+O robô que aprende com o mercado e opera Forex, ouro, cripto e expiração fixa, **no simulado** antes de qualquer dinheiro real. A definição do produto está em [docs/PRODUCT_CHARTER.md](../docs/PRODUCT_CHARTER.md).
 
-## O que ele faz hoje
+## Seguir traders (`python -m mneme`)
 
-A cada minuto:
+Esta é uma das estratégias. O motor multi-mercado está em `mneme/motor/`. A cada minuto:
 
 1. Lê as operações recentes dos traders no provedor de sinais.
 2. Mede a taxa de acerto de **todo** trader pelas operações que ele encerra (30 dias), esteja ou não no ranking.

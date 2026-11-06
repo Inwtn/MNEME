@@ -1,6 +1,6 @@
 # Market Data Engine
 
-**Situação:** proposta aguardando aprovação. A coluna "Testado" registra uma chamada pública feita da A1 em 05/11/2026; resposta 200 mostra que a rota responde, e não que os termos permitem todo uso.
+**Situação:** referência de arquitetura, subordinada ao [Product Charter](../PRODUCT_CHARTER.md). O estado real está em [RASTREABILIDADE.md](RASTREABILIDADE.md). A coluna "Testado" registra uma chamada pública feita da A1 em 05/11/2026; resposta 200 mostra que a rota responde, e não que os termos permitem todo uso.
 
 ## Regra principal
 

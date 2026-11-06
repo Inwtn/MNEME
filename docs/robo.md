@@ -1,10 +1,10 @@
 # O robô MNEME
 
-Este é o documento de referência do robô.
+Este documento descreve a estratégia de seguir traders em Solana, uma das estratégias do produto. A definição do MNEME está em [PRODUCT_CHARTER.md](PRODUCT_CHARTER.md).
 
 ## O que ele faz
 
-O MNEME é **um robô só**, que roda sozinho na nuvem (Cloudflare Worker `mneme-telegram-bot`, código em `workers/bot/`) a cada minuto. Ele faz **daytrade em Solana seguindo a maioria dos traders de alta taxa de acerto**, estejam ou não no ranking:
+Esta estratégia roda sozinha na nuvem, em código legado (Cloudflare Worker `mneme-telegram-bot`, código em `workers/bot/`) a cada minuto. Ela faz **daytrade em Solana seguindo a maioria dos traders de alta taxa de acerto**, estejam ou não no ranking:
 
 1. **Lê o provedor de sinais**: as operações recentes de todos os traders, a cada minuto. O ranking dos 50 primeiros é consultado no máximo a cada 30 minutos (tabela `paper_training_ranking`) e só informa a posição de quem está no Top.
 2. **Mede a taxa de acerto de cada trader**: acompanha cada compra de qualquer trader que aparece nas operações, esteja ou não no ranking, e, quando ele vende, registra se a operação fechou com lucro pelo preço de mercado. A taxa é o percentual de operações com lucro nos últimos 30 dias. O valor de cada operação não pesa: conta quem tem a amostra mínima e a taxa mínima de Configurações. O acerto é medido em qualquer rede, mas o robô só compra tokens de Solana.

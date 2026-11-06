@@ -12,9 +12,9 @@
 
 ---
 
-**MNEME** é uma plataforma de inteligência financeira para cripto, forex e opções digitais. Ela combina engenharia de dados, machine learning, análise quantitativa e IA generativa para estudar o mercado, testar hipóteses, identificar oportunidades e gerar sinais, com uma regra central: **nenhuma estratégia é aceita sem prova medida em dados que ela nunca viu**.
+**MNEME** é uma inteligência artificial financeira híbrida, com capacidade operacional, para Forex, ouro, cripto e operações de expiração fixa. Ela combina engenharia de dados, machine learning, deep learning, análise quantitativa, RAG e IA generativa para estudar o mercado, testar hipóteses, identificar oportunidades e gerar sinais, com uma regra central: **nenhuma estratégia é aceita sem prova medida em dados que ela nunca viu**.
 
-Não é um bot de indicadores, nem um chatbot que opina sobre preço. É um sistema científico de trading, em que cada decisão pode ser reconstruída, auditada e comparada com o que aconteceu de fato.
+Não é um bot de indicadores, nem um chatbot que opina sobre preço, nem só um gerador de sinais. A definição oficial está em [docs/PRODUCT_CHARTER.md](docs/PRODUCT_CHARTER.md). É um sistema científico de trading, em que cada decisão pode ser reconstruída, auditada e comparada com o que aconteceu de fato.
 
 ## Mercados
 
@@ -22,9 +22,10 @@ Cada mercado tem seus próprios modelos, custos, métricas e regras de risco. Na
 
 | Mercado | Modalidade | Atuação |
 |---|---|---|
+| **Forex e ouro** | EUR/USD, GBP/USD, USD/JPY, XAU/USD e outros | Compra e venda com stop, alvo e tamanho de posição; hoje em simulado |
 | **Solana** (Jupiter) | Tokens e pools de liquidez | Análise, sinais e execução |
-| **Binance** | Cripto à vista | Análise, sinais e execução |
-| **Quotex** | Forex, ouro, cripto e opções digitais | Primordialmente sinais de direção, com horário e expiração, apurados no simulado |
+| **Binance** | Bitcoin, Ethereum, Solana e outras criptos à vista | Análise, sinais e execução |
+| **Estilo Quotex** | Expiração fixa em Forex, ouro e cripto | Primeiro sinais, apurados no simulado; depois, se possível, operação por API ou controle da tela |
 
 ## Por que híbrido
 
@@ -137,7 +138,7 @@ O sistema tem **dois caminhos separados**. O caminho rápido calcula, decide e p
 
 | | |
 |---:|---|
-| **600** | testes automatizados, 466 no robô em Python e 134 no site e no Worker |
+| **618** | testes automatizados, 484 no robô em Python e 134 no site e no Worker |
 | **~3 milhões** | de velas de 1 minuto armazenadas em 152 MB de Parquet |
 | **0,2 s** | do fechamento da vela até a gravação, em coleta ao vivo |
 | **3e-8** | de erro relativo máximo nos indicadores, comparados ao TA-Lib em dados reais |

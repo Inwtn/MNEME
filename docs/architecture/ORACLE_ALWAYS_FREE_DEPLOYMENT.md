@@ -1,6 +1,6 @@
 # Implantação na Oracle Always Free
 
-**Situação:** proposta aguardando aprovação. Nada aqui foi implantado. **Medido** veio de um teste na A1 em 05/11/2026; **estimado** ainda precisa ser confirmado na fase 0 ou na fase em que o serviço entrar.
+**Situação:** referência de arquitetura, subordinada ao [Product Charter](../PRODUCT_CHARTER.md). O estado real está em [RASTREABILIDADE.md](RASTREABILIDADE.md). Nada aqui foi implantado. **Medido** veio de um teste na A1 em 05/11/2026; **estimado** ainda precisa ser confirmado na fase 0 ou na fase em que o serviço entrar.
 
 ## 1. O que existe de fato
 

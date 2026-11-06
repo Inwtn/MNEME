@@ -1,6 +1,6 @@
 # Stack tecnológica
 
-**Situação:** proposta aguardando aprovação. Licenças e suporte a ARM foram lidos do PyPI e do apt da A1 em 05/11/2026.
+**Situação:** referência de arquitetura, subordinada ao [Product Charter](../PRODUCT_CHARTER.md). O estado real está em [RASTREABILIDADE.md](RASTREABILIDADE.md). Licenças e suporte a ARM foram lidos do PyPI e do apt da A1 em 05/11/2026.
 
 ## Restrição que define tudo
 

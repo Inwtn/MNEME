@@ -1,6 +1,6 @@
 # Execution Engine
 
-**Situação:** proposta aguardando aprovação. Hoje o robô Python só simula.
+**Situação:** referência de arquitetura, subordinada ao [Product Charter](../PRODUCT_CHARTER.md). O estado real está em [RASTREABILIDADE.md](RASTREABILIDADE.md). Hoje o robô Python só simula.
 
 ## O que cada mercado permite
 
@@ -8,7 +8,7 @@
 |---|---|---|---|---|---|
 | Solana (Jupiter) | Sim | Sim | Depois da promoção | Depois da promoção | API documentada, chave local |
 | Binance Spot | Sim | Sim | Depois da promoção | Depois da promoção | API oficial, com chave restrita |
-| Binance Futuros | Só leitura | **Não** | **Bloqueado** | **Bloqueado** | Fora do escopo de execução |
+| Futuros | Só leitura | **Não** | **Bloqueado** | **Bloqueado** | No escopo quando aplicável; execução travada até decisão do dono |
 | Forex e ouro | Histórico; ao vivo depende de fonte | Sim | Só simulado | Só simulado | Falta fonte ao vivo e corretora autorizada |
 | Expiração fixa estilo Quotex | Sim, em fonte de referência | Sim | Só simulado | Só simulado | Sem API oficial encontrada; real exige nova decisão do dono ([ADR-0015](ADR/0015-operar-forex-ouro-e-expiracao-fixa.md)) |
 
@@ -21,7 +21,7 @@ Essa matriz fica em configuração, e o código recusa o que estiver bloqueado. 
 
 ### Binance Futuros
 
-Os dados públicos servem de atributos, como funding e open interest. A execução fica bloqueada neste projeto.
+Os dados públicos servem de atributos, como funding e open interest. A execução fica travada até o dono decidir abri-la, com modalidade e risco próprios.
 
 ## Modos
 

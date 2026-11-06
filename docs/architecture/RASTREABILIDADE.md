@@ -1,6 +1,6 @@
 # Matriz de rastreabilidade
 
-Estado real em 05/11/2026, verificado na máquina e no código. Código existente não conta como funcionalidade: uma capacidade só está completa quando seus dados são coletados, guardados, processados e chegam a quem precisa deles.
+Estado real em 05/11/2026, com as linhas de Forex, ouro e do motor atualizadas em 06/11/2026. O que está pendente aqui continua no escopo, como define [PRODUCT_CHARTER.md](../PRODUCT_CHARTER.md). Código existente não conta como funcionalidade: uma capacidade só está completa quando seus dados são coletados, guardados, processados e chegam a quem precisa deles.
 
 **Validada** quer dizer que o componente funciona. Não quer dizer que dá lucro.
 
@@ -20,8 +20,10 @@ Estado real em 05/11/2026, verificado na máquina e no código. Código existent
 | Notícias (10 fontes por RSS) | Sim | Sim, desde 05/11 | **Ligada, sem histórico**: colunas `n_` vazias antes da coleta | Parcial: fluxo testado, classificação sem amostra rotulada | Acumular meses para poder medir; classificação medida |
 | X (API oficial) | Sim, com teto de gasto | **Não: sem credencial** | **Não** | Só com dados simulados | Credencial e orçamento; tendências |
 | Provedor de sinais (traders) | Sim | Só no Mac | **Não** | Parcial | Migrar o robô |
-| Forex (EUR/USD) | **Não** | Não | **Não** | Não | Fonte, dataset e modelos |
-| Solana on-chain | **Não** | Não | **Não** | Não | Fonte e dataset |
+| Forex e ouro (EUR/USD, GBP/USD, USD/JPY, XAU/USD), histórico | Sim, 24 meses | Importação manual | **Sim**, no treino do motor | Sim: 1.008 medições, nenhuma acima do empate depois da correção | Termos da fonte |
+| Forex e ouro ao vivo | Só no gráfico do TradingView | **Não** no servidor | **Não** | Não | Fonte ao vivo para o motor |
+| Motor: decisão, risco, sinal, execução simulada e diário | Sim | Sim, desde 06/11 | Usa os pesos por modalidade | Testes de ponta a ponta; sem histórico ao vivo | Acumular operações; Telegram |
+| Solana on-chain, carteiras e DEXs | **Não** | Não | **Não** | Não | No escopo: fonte, dataset e adaptador |
 
 ## Conhecimento
 
@@ -31,7 +33,8 @@ Estado real em 05/11/2026, verificado na máquina e no código. Código existent
 | Estudos e setups (`robo/conhecimento/`) | Sim | **Não** | Medidos pelo laboratório | Ingestão |
 | RAG, embeddings e busca | Sim: 511 documentos, 3.187 trechos, 12 MB | **Ainda não** pelo fluxo de decisão | Busca: 9 de 12 perguntas com o documento certo; 3 falhas por falta de conteúdo (FVG, Ichimoku, Bollinger + RSI) | Mais fontes; ligar à decisão |
 | Fontes externas de conhecimento | Sim: arXiv, ChartSchool, documentos locais | Pela biblioteca | Investopedia e SSRN bloqueados, não contornados | Ampliar o limite de 150 páginas |
-| LLM local e LangGraph | **Não**, só medição | Não | Qualidade baixa em amostra pequena | Integração |
+| LLM local | Sim: leitor de notícias com contexto assíncrono | Só registrado no diário | Sentimento melhor que a regra em 48 notícias; respostas sobre técnicas falham na conferência | Medir utilidade; corrigir respostas |
+| LangGraph | **Não** | Não | Não | Integração |
 
 ## Técnicas
 

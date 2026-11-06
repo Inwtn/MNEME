@@ -3,7 +3,7 @@
 
 ## Conceito
 
-Tela de corretora para copy trading: densa, discreta e familiar para quem já usa exchange. Nada de letreiro gigante: o destaque é o **último sinal em formato de boleta** (lado, ativo, valor sugerido, trader, atraso, motivo).
+Tela de corretora para um robô multi-mercado: densa, discreta e familiar para quem já usa exchange. Nada de letreiro gigante: o destaque é o **último sinal em formato de boleta** (lado, ativo, valor sugerido, trader, atraso, motivo).
 
 ## Tokens
 

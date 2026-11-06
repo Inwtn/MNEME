@@ -2,7 +2,7 @@
   "name": "mneme",
   "version": "0.1.0",
   "private": true,
-  "description": "Bot de copy trading: acompanha os traders do Top, pontua cada operação e sugere, simula ou executa em Solana.",
+  "description": "MNEME: inteligência artificial financeira híbrida que estuda os mercados e opera Forex, ouro, cripto e expiração fixa.",
   "type": "module",
   "engines": {
     "node": ">=22.9"

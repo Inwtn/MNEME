@@ -1,10 +1,10 @@
 # Roadmap
 
-**Situação:** proposta aguardando aprovação. Sem datas prometidas: o tamanho é relativo (P, M, G), e cada fase termina por critério objetivo. As fases entregam valor sozinhas, e pode-se parar em qualquer uma.
+**Situação:** referência de arquitetura, subordinada ao [Product Charter](../PRODUCT_CHARTER.md). O estado real está em [RASTREABILIDADE.md](RASTREABILIDADE.md). Sem datas prometidas: o tamanho é relativo (P, M, G), e cada fase termina por critério objetivo. As fases entregam valor sozinhas, e pode-se parar em qualquer uma.
 
 ## Ordem de implementação
 
-Definida pelo dono em 05/11/2026: construir, testar, medir e evoluir. Esta ordem manda sobre as fases abaixo, que ficam como referência de conteúdo.
+Definida pelo dono em 05/11/2026: construir, testar, medir e evoluir. Esta ordem manda sobre as fases abaixo, que ficam como referência de conteúdo. O roadmap define prioridades e etapas, e não redefine o produto: o objetivo está no [Product Charter](../PRODUCT_CHARTER.md). Um mercado ou capacidade sem fase aqui continua no escopo.
 
 | Entrega | O que funciona ao final | Critério |
 |---|---|---|

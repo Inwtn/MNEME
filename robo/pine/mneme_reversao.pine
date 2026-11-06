@@ -1,0 +1,112 @@
+//@version=6
+strategy("MNEME | Reversao Bollinger + Linhas", overlay=true, initial_capital=10000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, process_orders_on_close=false, max_lines_count=200, max_labels_count=200)
+
+// Mesma regra medida no laboratorio do MNEME: fechou fora da banda, aposta na volta. Sinal so com a vela fechada; entra na abertura seguinte.
+tamanho = input.int(20, "Bollinger: periodos")
+desvios = input.float(2.0, "Bollinger: desvios")
+expiracao = input.int(1, "Sair depois de quantas velas", minval=1)
+payout = input.float(0.85, "Payout suposto da opcao digital", step=0.01)
+lados = input.int(3, "Pivo: velas de cada lado", minval=1)
+maisRecentes = input.int(40, "Linhas: quantos pivos olhar", minval=5)
+
+[meio, topoBanda, baseBanda] = ta.bb(close, tamanho, desvios)
+atr = ta.atr(14)
+plot(meio, "Media", color.new(color.gray, 40))
+plot(topoBanda, "Banda superior", color.new(color.teal, 20))
+plot(baseBanda, "Banda inferior", color.new(color.teal, 20))
+
+compra = close <= baseBanda
+venda = close >= topoBanda
+
+// A ordem de saida enviada no fechamento so executa na abertura seguinte: por isso o "- 1".
+if strategy.position_size != 0 and bar_index - strategy.opentrades.entry_bar_index(0) >= expiracao - 1
+    strategy.close_all(comment="Saida")
+if strategy.position_size == 0 and barstate.isconfirmed
+    if compra
+        strategy.entry("Compra", strategy.long, comment="Compra")
+    else if venda
+        strategy.entry("Venda", strategy.short, comment="Venda")
+
+// Pivos so aparecem lados velas depois de acontecerem, como na vida real.
+topoPivo = ta.pivothigh(high, lados, lados)
+fundoPivo = ta.pivotlow(low, lados, lados)
+var array<float> precosTopo = array.new<float>()
+var array<int> barrasTopo = array.new<int>()
+var array<float> precosFundo = array.new<float>()
+var array<int> barrasFundo = array.new<int>()
+guardar(array<float> precos, array<int> barras, float preco, int barra) =>
+    array.push(precos, preco)
+    array.push(barras, barra)
+    if array.size(precos) > maisRecentes
+        array.shift(precos)
+        array.shift(barras)
+if not na(topoPivo)
+    guardar(precosTopo, barrasTopo, topoPivo, bar_index - lados)
+if not na(fundoPivo)
+    guardar(precosFundo, barrasFundo, fundoPivo, bar_index - lados)
+
+// LTA liga os dois ultimos fundos crescentes; LTB, os dois ultimos topos decrescentes.
+var line lta = na
+var line ltb = na
+var array<line> niveis = array.new<line>()
+var array<label> rotulos = array.new<label>()
+// Suporte e resistencia: dois pivos a menos de meio ATR viram um nivel.
+desenhar(array<float> precos, array<int> barras) =>
+    n = array.size(precos)
+    desenhados = 0
+    if n >= 2
+        for i = n - 1 to 1
+            for j = i - 1 to 0
+                if math.abs(array.get(precos, i) - array.get(precos, j)) <= atr * 0.5 and desenhados < 3
+                    nivel = (array.get(precos, i) + array.get(precos, j)) / 2
+                    cor = nivel < close ? color.lime : color.red
+                    array.push(niveis, line.new(array.get(barras, j), nivel, bar_index, nivel, extend=extend.right, color=color.new(cor, 30), style=line.style_dashed))
+                    array.push(rotulos, label.new(bar_index + 2, nivel, nivel < close ? "Suporte" : "Resistencia", style=label.style_none, textcolor=cor, size=size.small))
+                    desenhados += 1
+                    break
+if barstate.islast
+    line.delete(lta)
+    line.delete(ltb)
+    while array.size(niveis) > 0
+        line.delete(array.pop(niveis))
+    while array.size(rotulos) > 0
+        label.delete(array.pop(rotulos))
+    nf = array.size(precosFundo)
+    if nf >= 2
+        for i = nf - 1 to 1
+            if array.get(precosFundo, i) > array.get(precosFundo, i - 1)
+                lta := line.new(array.get(barrasFundo, i - 1), array.get(precosFundo, i - 1), array.get(barrasFundo, i), array.get(precosFundo, i), extend=extend.right, color=color.lime, width=2)
+                break
+    nt = array.size(precosTopo)
+    if nt >= 2
+        for i = nt - 1 to 1
+            if array.get(precosTopo, i) < array.get(precosTopo, i - 1)
+                ltb := line.new(array.get(barrasTopo, i - 1), array.get(precosTopo, i - 1), array.get(barrasTopo, i), array.get(precosTopo, i), extend=extend.right, color=color.red, width=2)
+                break
+    desenhar(precosTopo, barrasTopo)
+    desenhar(precosFundo, barrasFundo)
+
+// Placar: o mesmo sinal lido como opcao digital. Ganhou, recebe o payout; perdeu, perde a aposta.
+var int ganhos = 0
+var int perdas = 0
+if strategy.closedtrades > strategy.closedtrades[1]
+    if strategy.closedtrades.profit(strategy.closedtrades - 1) > 0
+        ganhos += 1
+    else if strategy.closedtrades.profit(strategy.closedtrades - 1) < 0
+        perdas += 1
+var table placar = table.new(position.top_right, 2, 5, bgcolor=color.new(color.black, 20), border_width=1)
+if barstate.islast
+    total = ganhos + perdas
+    acerto = total > 0 ? 100.0 * ganhos / total : 0.0
+    empate = 100.0 / (1 + payout)
+    saldo = ganhos * payout - perdas
+    table.cell(placar, 0, 0, "Operacoes", text_color=color.white)
+    table.cell(placar, 1, 0, str.tostring(total), text_color=color.white)
+    table.cell(placar, 0, 1, "Acerto", text_color=color.white)
+    table.cell(placar, 1, 1, str.tostring(acerto, "#.##") + "%", text_color=acerto > empate ? color.lime : color.red)
+    table.cell(placar, 0, 2, "Empate", text_color=color.white)
+    table.cell(placar, 1, 2, str.tostring(empate, "#.##") + "%", text_color=color.white)
+    table.cell(placar, 0, 3, "Saldo (apostas)", text_color=color.white)
+    table.cell(placar, 1, 3, str.tostring(saldo, "#.##"), text_color=saldo > 0 ? color.lime : color.red)
+    table.cell(placar, 0, 4, "Sem custos: simulacao", text_color=color.gray)
+    table.cell(placar, 1, 4, "", text_color=color.gray)

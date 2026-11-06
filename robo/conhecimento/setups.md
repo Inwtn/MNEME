@@ -101,6 +101,12 @@ Até 31/07/2026, sem tocar a área selada. Candle, previsão, atraso e expiraç�
 - **Quando evitar (hipótese, não regra):** em ETH 15 min, 58,4% sem tendência e calmo contra 53,6% em alta volátil.
 - **Não medido:** a contribuição de cada grupo está pendente, e o livro de ofertas tem só 2 dias. Notícias também não têm histórico.
 
+## Todas as técnicas (`mneme.laboratorio.tecnicas`)
+
+28 técnicas sozinhas, em 3 ativos, 3 tempos gráficos e 3 expirações, até 31/07/2026. Das 756 medições, 4 passam do empate depois da correção, todas em ETH: Bollinger fora da banda (58,02% em 15 min, 55,78% em 5 min) e RSI extremo (56,23% e 55,60% em 5 min). As médias gerais são Bollinger 54,48% e RSI 54,34%. Perfil de volume, suporte e resistência, VSA e Fibonacci ficam perto de 51%. FVG, Ichimoku, MACD, VWAP, tendência, reteste, rompimento e OCO ficam abaixo de 50%.
+
+**Depois de 01/08, área selada exposta:** no TradingView, Bollinger em ETH 15 min deu 52,75% de 31/08 a 06/11, com 546 operações. Fica abaixo do empate e bem abaixo dos 58,02% do desenvolvimento. O script não é idêntico ao laboratório em tudo, mas o número pesa contra a hipótese.
+
 ## Limites desta medição
 
 - São só 24 meses, e os pares são correlacionados: Holm é conservador nesse caso.

@@ -74,7 +74,7 @@ Estado real em 05/11/2026, verificado na máquina e no código. Código existent
 |---|---|
 | Backtest | 54 combinações de setups em opção digital e 54 em spot; nenhuma aprovada |
 | Fora da amostra | Modelos com walk-forward, purga e embargo; corte de seleção só com o passado, depois da correção |
-| Área selada (desde 01/08/2026) | **Nenhuma hipótese aberta**: nada mereceu o teste final. Estudos anteriores à criação da área tocaram esses meses |
+| Área selada (desde 01/08/2026) | **Nenhuma hipótese aberta oficialmente**. Estudos anteriores à criação da área tocaram esses meses. **Exposição em 06/11/2026:** o teste visual no TradingView de "Bollinger fora da banda, ETH, 15 min" mostrou 31/08 a 06/11: 52,75% (288 de 546), abaixo do empate de 54,05% e sem custos. Essa hipótese não tem mais área selada limpa; a prova dela passa a ser a carteira simulada ao vivo. O teste visual mostra só o período recente, então vale para qualquer regra colocada no gráfico |
 | Ao vivo, sem operar | Previsões gravadas desde 05/11/2026; placar funcionando (cerca de 60 por modelo de 15 min), amostra ainda sem valor estatístico |
 | Paper trading dos novos modelos | **Nenhum** |
 

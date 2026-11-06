@@ -18,3 +18,4 @@ Todas as decisões abaixo estão **propostas**, aguardando aprovação. Para mud
 | [0012](0012-custo-zero-e-llm-opcional.md) | Custo zero com LLM local sob demanda |
 | [0013](0013-docker-compose-oracle.md) | Docker Compose na Oracle A1 |
 | [0014](0014-calendario-economico.md) | Calendário econômico por fontes permitidas |
+| [0015](0015-operar-forex-ouro-e-expiracao-fixa.md) | Operar Forex, ouro e expiração fixa, começando no simulado |

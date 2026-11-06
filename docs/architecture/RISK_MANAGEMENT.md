@@ -38,7 +38,7 @@ Cada limite existe por estratégia, por mercado e no global, valendo o mais rest
 |---|---|
 | Solana | Risco de perda total: tamanho menor; bloqueio de token com alerta de risco; liquidez mínima; reserva de SOL para taxas; concentração de holders |
 | Binance Spot | Ordem com preço limite; respeito aos filtros do par |
-| Opção digital (só sinal) | Sem recomendar valor; **proibida qualquer recuperação por aumento de aposta**, como martingale; limite de sinais por dia |
+| Expiração fixa | Valor fixo por operação; **proibida qualquer recuperação por aumento de aposta**, como martingale; limite de sinais por dia |
 | Futuros | Bloqueado |
 
 ## Kill switch e circuit breaker

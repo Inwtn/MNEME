@@ -40,7 +40,7 @@ flowchart LR
     MNEME -- resumo para o painel --> SITE
 ```
 
-A Quotex não aparece como destino de ordens. Os sinais para ela são manuais: quem recebe decide e opera por conta própria.
+A Quotex ainda não aparece como destino de ordens reais: o robô opera nela no simulado, com sinais de expiração fixa ([ADR-0015](ADR/0015-operar-forex-ouro-e-expiracao-fixa.md)).
 
 ## 5. Dois caminhos
 

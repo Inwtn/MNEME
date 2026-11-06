@@ -9,15 +9,15 @@
 | Solana (Jupiter) | Sim | Sim | Depois da promoção | Depois da promoção | API documentada, chave local |
 | Binance Spot | Sim | Sim | Depois da promoção | Depois da promoção | API oficial, com chave restrita |
 | Binance Futuros | Só leitura | **Não** | **Bloqueado** | **Bloqueado** | Fora do escopo de execução |
-| Forex e opções digitais na Quotex | Sim, em fonte de referência | Sim | **Não** | **Não** | Sem API oficial encontrada |
-| Forex em outra corretora | - | - | - | - | Fora de escopo até nova decisão |
+| Forex e ouro | Histórico; ao vivo depende de fonte | Sim | Só simulado | Só simulado | Falta fonte ao vivo e corretora autorizada |
+| Expiração fixa estilo Quotex | Sim, em fonte de referência | Sim | Só simulado | Só simulado | Sem API oficial encontrada; real exige nova decisão do dono ([ADR-0015](ADR/0015-operar-forex-ouro-e-expiracao-fixa.md)) |
 
 Essa matriz fica em configuração, e o código recusa o que estiver bloqueado. Abrir uma célula bloqueada exige um novo ADR, e não basta uma mudança na tela.
 
 ### Quotex
 
 - **Integração:** nenhuma API oficial foi encontrada. O site não pôde ser lido daqui, então os termos não foram conferidos diretamente. Fontes secundárias dizem que não há API pública, e [uma biblioteca não oficial cita uma mensagem atribuída à corretora](https://pypi.org/project/quotexpy/1.40.1) sobre bloqueio de contas por uso de robôs.
-- **Decisão:** nenhum executor. Conforme o próprio pedido, sem automação de navegador, engenharia reversa ou endpoints privados. Sinais e execução ficam separados, e a execução fica de fora.
+- **Decisão:** o robô opera no simulado. Não há executor real, nem automação de navegador, engenharia reversa ou endpoints privados, até o dono autorizar uma integração.
 
 ### Binance Futuros
 

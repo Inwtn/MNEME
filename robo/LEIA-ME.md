@@ -36,6 +36,7 @@ O `rodar.sh` mantém o Mac acordado enquanto o robô roda (Ctrl+C para parar). O
 | `mneme/estrategias/seguir_traders.py` | Regra de entrada e saída |
 | `mneme/carteira.py` | Carteira simulada, meta e limite do dia |
 | `mneme/carteira_tecnicas.py` | Carteira simulada ao vivo por técnica e confluência, sem enviar ordens |
+| `mneme/motor/` | O robô multi-mercado: decisão, risco, sinal, execução simulada, diário e contexto da LLM |
 | `mneme/ciclo.py` | Um ciclo completo do robô |
 | `mneme/banco.py` | Esquema do banco (SQLite agora, Postgres no servidor) |
 

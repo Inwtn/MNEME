@@ -1,0 +1,54 @@
+{
+  "_nota": "Copie para dados/operacao.json. Payout e custos são hipóteses até serem medidos. Sem este arquivo, o robô só observa.",
+  "modo": "paper",
+  "banca": 100,
+  "risco_por_operacao": 1,
+  "min_operacoes_evidencia": 200,
+  "limites": {
+    "meta_dia_pct": 20,
+    "perda_dia_pct": 10,
+    "max_operacoes_dia": 200,
+    "max_simultaneas_total": 100,
+    "max_perdas_seguidas": 8,
+    "drawdown_max_pct": 40,
+    "idade_maxima_dados_min": 3
+  },
+  "mercados": [
+    {
+      "mercado": "cripto",
+      "ativos": ["ETHUSDT", "BTCUSDT", "SOLUSDT"],
+      "modalidades": [
+        {"tipo": "expiracao_fixa", "candle": 1, "expiracao": 1, "payout": 0.85},
+        {"tipo": "expiracao_fixa", "candle": 1, "expiracao": 5, "payout": 0.85},
+        {"tipo": "expiracao_fixa", "candle": 5, "expiracao": 5, "payout": 0.85},
+        {"tipo": "expiracao_fixa", "candle": 5, "expiracao": 15, "payout": 0.85},
+        {"tipo": "expiracao_fixa", "candle": 15, "expiracao": 15, "payout": 0.85},
+        {"tipo": "com_stop", "candle": 5, "expiracao": 60, "custo_bps": 20, "stop_atr": 1.5, "alvo_atr": 3, "vende": false}
+      ]
+    },
+    {
+      "mercado": "forex",
+      "ativos": ["EURUSD", "GBPUSD", "USDJPY"],
+      "modalidades": [
+        {"tipo": "expiracao_fixa", "candle": 1, "expiracao": 1, "payout": 0.85},
+        {"tipo": "expiracao_fixa", "candle": 1, "expiracao": 5, "payout": 0.85},
+        {"tipo": "expiracao_fixa", "candle": 5, "expiracao": 5, "payout": 0.85},
+        {"tipo": "expiracao_fixa", "candle": 5, "expiracao": 15, "payout": 0.85},
+        {"tipo": "expiracao_fixa", "candle": 15, "expiracao": 15, "payout": 0.85},
+        {"tipo": "com_stop", "candle": 5, "expiracao": 60, "custo_bps": 1.5, "stop_atr": 1.5, "alvo_atr": 3, "vende": true}
+      ]
+    },
+    {
+      "mercado": "ouro",
+      "ativos": ["XAUUSD"],
+      "modalidades": [
+        {"tipo": "expiracao_fixa", "candle": 1, "expiracao": 1, "payout": 0.85},
+        {"tipo": "expiracao_fixa", "candle": 1, "expiracao": 5, "payout": 0.85},
+        {"tipo": "expiracao_fixa", "candle": 5, "expiracao": 5, "payout": 0.85},
+        {"tipo": "expiracao_fixa", "candle": 5, "expiracao": 15, "payout": 0.85},
+        {"tipo": "expiracao_fixa", "candle": 15, "expiracao": 15, "payout": 0.85},
+        {"tipo": "com_stop", "candle": 5, "expiracao": 60, "custo_bps": 3, "stop_atr": 1.5, "alvo_atr": 3, "vende": true}
+      ]
+    }
+  ]
+}

@@ -71,6 +71,28 @@ services:
       retries: 3
       start_period: 180s
 
+
+  # O robô: vela fechada, decisão, risco, sinal, execução simulada e diário. Não envia ordem real.
+  motor:
+    <<: *servico
+    command: [".venv/bin/python", "-m", "mneme.motor", "rodar"]
+    mem_limit: 1500m
+    cpus: 1
+    cpu_shares: 512
+    healthcheck:
+      test: ["CMD", ".venv/bin/python", "-c", "import datetime as d,pathlib as p; t=d.datetime.fromisoformat(p.Path('/dados/mercado/motor.batimento').read_text()); raise SystemExit(0 if (d.datetime.now(d.timezone.utc)-t).total_seconds()<300 else 1)"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
+
+  # A LLM lê as notícias no próprio ritmo e guarda o contexto. Se cair, o motor segue sem perceber.
+  leitor:
+    <<: *servico
+    command: [".venv/bin/python", "-m", "mneme.motor", "ler"]
+    mem_limit: 500m
+    cpus: 0.25
+    cpu_shares: 128
   # IA Generativa local e gratuita. A porta só existe dentro da própria máquina. Perde a disputa por CPU para a coleta.
   llm:
     image: ollama/ollama:0.12.6

@@ -24,7 +24,7 @@ Cada mercado tem seus próprios modelos, custos, métricas e regras de risco. Na
 |---|---|---|
 | **Solana** (Jupiter) | Tokens e pools de liquidez | Análise, sinais e execução |
 | **Binance** | Cripto à vista | Análise, sinais e execução |
-| **Quotex** | Forex e opções digitais | Análise e sinais de direção, com horário e expiração |
+| **Quotex** | Forex, ouro, cripto e opções digitais | Análise, sinais e operação simulada de expiração fixa; real só com integração autorizada |
 
 ## Por que híbrido
 
@@ -137,7 +137,7 @@ O sistema tem **dois caminhos separados**. O caminho rápido calcula, decide e p
 
 | | |
 |---:|---|
-| **525** | testes automatizados, 391 no robô em Python e 134 no site e no Worker |
+| **595** | testes automatizados, 461 no robô em Python e 134 no site e no Worker |
 | **~3 milhões** | de velas de 1 minuto armazenadas em 152 MB de Parquet |
 | **0,2 s** | do fechamento da vela até a gravação, em coleta ao vivo |
 | **3e-8** | de erro relativo máximo nos indicadores, comparados ao TA-Lib em dados reais |

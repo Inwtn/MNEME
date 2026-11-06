@@ -57,6 +57,33 @@ services:
       retries: 3
       start_period: 180s
 
+  # IA Generativa local e gratuita. A porta só existe dentro da própria máquina. Perde a disputa por CPU para a coleta.
+  llm:
+    image: ollama/ollama:0.12.6
+    ports:
+      - "127.0.0.1:11434:11434"
+    environment:
+      OLLAMA_KEEP_ALIVE: 10m
+      OLLAMA_NUM_PARALLEL: 1
+      OLLAMA_MAX_LOADED_MODELS: 1
+    volumes:
+      - ./dados/ollama:/root/.ollama
+    restart: always
+    mem_limit: 5g
+    cpus: 2
+    cpu_shares: 128
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 60s
+      timeout: 20s
+      retries: 3
+      start_period: 60s
+
   # Separado das velas: uma falha aqui não interrompe a coleta principal.
   fluxo:
     <<: *servico

@@ -59,33 +59,39 @@ def _trecho(texto, titulo="Doc", citacao=1):
     return SimpleNamespace(citacao=citacao, texto=texto, titulo=titulo, fonte="chartschool", origem="http://a", confiabilidade="media", suspeito=False)
 
 
-def test_resposta_sem_citacao_e_recusada():
-    r = verificar_resposta({"suficiente": True, "resposta": "RSI mede força.", "citacoes": []}, [_trecho("RSI mede força")])
+def test_resposta_sem_evidencia_e_recusada():
+    r = verificar_resposta({"evidencias": [], "resposta": "RSI mede força."}, [_trecho("RSI mede força relativa")])
     assert r.texto == SEM_RESPOSTA and not r.suficiente
 
 
-def test_citacao_de_trecho_inexistente_e_recusada():
-    assert not verificar_resposta({"suficiente": True, "resposta": "RSI mede força.", "citacoes": [7]}, [_trecho("RSI mede força")]).suficiente
+def test_evidencia_que_nao_esta_nos_trechos_e_recusada():
+    r = verificar_resposta({"evidencias": ["uma frase que ninguém escreveu nas fontes"], "resposta": "RSI mede força."}, [_trecho("RSI mede força relativa")])
+    assert not r.suficiente and r.motivo == "evidência não está nos trechos"
+
+
+def test_evidencia_curta_demais_nao_prova_nada():
+    assert not verificar_resposta({"evidencias": ["RSI"], "resposta": "RSI mede força."}, [_trecho("RSI mede força relativa")]).suficiente
 
 
 def test_numero_que_nao_esta_nas_fontes_derruba_a_resposta():
-    fonte = [_trecho("The RSI oscillates between 0 and 100, with 70 overbought and 30 oversold.")]
-    assert verificar_resposta({"suficiente": True, "resposta": "Sobrecomprado acima de 70.", "citacoes": [1]}, fonte).suficiente
-    r = verificar_resposta({"suficiente": True, "resposta": "Sobrecomprado acima de 85.", "citacoes": [1]}, fonte)
+    frase = "The RSI oscillates between 0 and 100, with 70 overbought and 30 oversold."
+    assert verificar_resposta({"evidencias": [frase], "resposta": "Sobrecomprado acima de 70."}, [_trecho(frase)]).suficiente
+    r = verificar_resposta({"evidencias": [frase], "resposta": "Sobrecomprado acima de 85."}, [_trecho(frase)])
     assert not r.suficiente and "85" in r.motivo
 
 
 def test_modelo_admitindo_nao_saber_vira_recusa():
-    assert verificar_resposta({"suficiente": False, "resposta": "chute", "citacoes": [1]}, [_trecho("x")]).texto == SEM_RESPOSTA
+    assert verificar_resposta({"evidencias": [], "resposta": ""}, [_trecho("x")]).texto == SEM_RESPOSTA
 
 
-def test_citacoes_voltam_com_a_fonte():
-    r = verificar_resposta({"suficiente": True, "resposta": "RSI mede força.", "citacoes": [2, 2]}, [_trecho("a", "A"), _trecho("RSI mede força", "B", 2)])
+def test_a_fonte_vem_da_frase_copiada_e_nao_do_que_o_modelo_diz():
+    frase = "RSI mede a força relativa do preço"
+    r = verificar_resposta({"evidencias": [frase, frase], "resposta": "RSI mede força."}, [_trecho("outro assunto", "A"), _trecho(frase + " em um período", "B", 2)])
     assert [c["titulo"] for c in r.citacoes] == ["B"] and r.citacoes[0]["origem"] == "http://a"
 
 
 def test_responder_ignora_trecho_suspeito_e_nao_chama_o_modelo_sem_contexto():
-    cliente, pedidos = _cliente({"suficiente": True, "resposta": "x", "citacoes": [1]})
+    cliente, pedidos = _cliente({"evidencias": ["x"], "resposta": "x"})
     biblioteca = SimpleNamespace(consultar=lambda pergunta, k: [SimpleNamespace(suspeito=True)])
     assert responder(cliente, biblioteca, "o que é RSI?").texto == SEM_RESPOSTA and pedidos == []
 

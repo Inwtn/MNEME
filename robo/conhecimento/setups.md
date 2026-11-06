@@ -86,6 +86,21 @@ Sete combinações, em 15 e 60 min de gráfico, com saída em 15 e 60 min. Corte
 
 Partes isoladas: RSI extremo fica perto de 55% nos três pares (limite inferior de até 53,99%, abaixo do empate). Rompimento acerta só de 43% a 44%. Tudo aponta para reversão de curto prazo. Operar contra rompimentos é hipótese nova, a registrar antes de medir.
 
+## Comparação de horizontes (`mneme.laboratorio.estudo_horizontes`)
+
+Até 31/07/2026, sem tocar a área selada. Candle, previsão, atraso e expiração variam de forma independente, com uma operação de cada vez e 1 minuto de atraso. O critério é o limite inferior da expectativa, sorteando dias inteiros.
+
+- **Ativo:** das 135 combinações com amostra suficiente, 14 têm limite inferior positivo com payout de 85%, e **todas são ETH**. Com payout de 80%, nenhuma. Esses números não têm correção pelas 135 combinações.
+- **Melhores:** candle de 5 min, previsão e expiração de 15 min: 56,40%, 12,5 operações por dia, 6 de 6 trimestres. Candle de 15 min, previsão de 60 e expiração de 30: 57,48%, 3,8 por dia.
+- **1 minuto não sustenta:** expiração de 1 minuto fica entre 50,7% e 52,7% com atraso. BTC cai de 55,93% para 50,73% com 1 minuto de atraso, porque o ganho estava em entrar na vela seguinte sem demora.
+- **Candle curto ajuda, expiração curta não:** decidir em candle de 1 min com expiração de 5 min dá 55,19% em ETH, 39,8 operações por dia.
+- **Reversão e continuação, regra simples:** reversão ganha de continuação em todas as 15 comparações, com o melhor resultado em ETH 15 min (55,26%, 6 de 8 trimestres). Continuação perde sempre. O modelo em ETH 15 min acrescenta só 1 ponto sobre essa regra.
+- **Custos reais:** spread de 0,002 a 1,1 bps e slippage abaixo de 0,02 bps para US$ 1.000. Com taxa de tabela, spot e derivativos perdem em todos os cenários, de -8,5 a -25 bps por operação. Só a opção digital é compatível com o resultado, e o preço e o payout dela não foram medidos.
+- **Volatilidade:** previsível em todos os horizontes, R² de 0,38 a 0,61 e 22% a 30% melhor que a referência.
+- **Multi-timeframe:** por regras, cada filtro sobe o acerto, mas nenhuma sequência passa do empate. O contexto de 1h sozinho fica em 50%. Por modelo, somar o candle de 5 min traz ganho em 5 de 6 comparações; 15 min, 60 min, 4h e diário quase nunca.
+- **Quando evitar (hipótese, não regra):** em ETH 15 min, 58,4% sem tendência e calmo contra 53,6% em alta volátil.
+- **Não medido:** a contribuição de cada grupo está pendente, e o livro de ofertas tem só 2 dias. Notícias também não têm histórico.
+
 ## Limites desta medição
 
 - São só 24 meses, e os pares são correlacionados: Holm é conservador nesse caso.

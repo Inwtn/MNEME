@@ -57,6 +57,20 @@ services:
       retries: 3
       start_period: 180s
 
+  # Carteira virtual por técnica. Não envia ordem: grava o sinal antes do resultado.
+  carteira:
+    <<: *servico
+    command: [".venv/bin/python", "-m", "mneme.carteira", "rodar"]
+    mem_limit: 800m
+    cpus: 0.75
+    cpu_shares: 256
+    healthcheck:
+      test: ["CMD", ".venv/bin/python", "-c", "import datetime as d,pathlib as p; t=d.datetime.fromisoformat(p.Path('/dados/mercado/carteira.batimento').read_text()); raise SystemExit(d.datetime.now(d.timezone.utc)-t>d.timedelta(minutes=5))"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
+
   # IA Generativa local e gratuita. A porta só existe dentro da própria máquina. Perde a disputa por CPU para a coleta.
   llm:
     image: ollama/ollama:0.12.6

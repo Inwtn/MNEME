@@ -12,7 +12,8 @@ import pandas as pd
 # Coluna que identifica cada evento, para recuperações que se sobrepõem não duplicarem nada.
 CHAVES = {"trades": ["agg_id"], "livro": ["ocorrido_em"], "derivativos": ["ocorrido_em"], "liquidacoes": ["ocorrido_em", "lado", "preco", "quantidade"],
           "funding": ["ocorrido_em"], "open_interest": ["ocorrido_em"], "calendario": ["id", "previsao"], "previsoes": ["modelo", "ocorrido_em"],
-          "noticias": ["id"], "social": ["id"], "resultados_macro": ["id", "resultado", "consenso", "anterior"]}
+          "noticias": ["id"], "social": ["id"], "resultados_macro": ["id", "resultado", "consenso", "anterior"],
+          "carteira": ["estrategia", "tempo", "ocorrido_em"]}
 
 
 class ArmazemEventos:

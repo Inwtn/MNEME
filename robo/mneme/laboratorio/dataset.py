@@ -44,6 +44,13 @@ def _leitura_em_tempo_maior(v: pd.DataFrame, tempo: str) -> pd.DataFrame:
     return x.reindex(v.index, method="ffill")
 
 
+def contexto_maior(v: pd.DataFrame, tempos: tuple[str, ...] = ("240min", "1D")) -> pd.DataFrame:
+    """4h e diário como contexto, família x_. Só nos estudos: o previsor ao vivo lê 30 dias, pouco para aquecer o diário igual ao treino."""
+    v = continuas(v)
+    partes = [_leitura_em_tempo_maior(v, tempo).rename(columns=lambda c: "x_" + c[2:]) for tempo in tempos]
+    return pd.concat(partes, axis=1).replace([np.inf, -np.inf], np.nan)
+
+
 def _retornos(serie: pd.Series, prefixo: str) -> pd.DataFrame:
     x = pd.DataFrame(index=serie.index)
     for minutos in (1, 5, 15, 60, 240):
